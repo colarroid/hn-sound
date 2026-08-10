@@ -3,17 +3,15 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /*
-  Square controls. On focus the border takes the accent and a 2px accent rule
-  animates in along the bottom edge, done with an inset box shadow so no extra
-  wrapper element is needed.
+  Square controls. On focus the border takes the accent and the surface lifts a
+  step. That is the whole treatment: one crimson outline, nothing inside it.
 */
 const CONTROL = cn(
   "w-full border bg-surface-2 px-3 text-sm text-ink",
   "placeholder:text-muted/55",
-  "transition-[border-color,background-color,box-shadow] duration-200 ease-out",
+  "transition-[border-color,background-color] duration-200 ease-out",
   "hover:border-line-strong",
   "focus:border-accent focus:bg-surface-3 focus:outline-none",
-  "focus:shadow-[inset_0_-2px_0_0_var(--accent)]",
   "disabled:cursor-not-allowed disabled:opacity-55",
 );
 

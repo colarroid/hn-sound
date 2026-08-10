@@ -99,9 +99,9 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
             autoFocus={index === 0}
             className={cn(
               "h-14 w-full min-w-0 border text-center font-mono text-xl text-ink",
-              "transition-[border-color,background-color,box-shadow] duration-200 ease-out",
+              "transition-[border-color,background-color] duration-200 ease-out",
               "hover:border-line-strong",
-              "focus:border-accent focus:outline-none focus:shadow-[inset_0_-2px_0_0_var(--accent)]",
+              "focus:border-accent focus:outline-none",
               "disabled:opacity-55",
               digit ? "anim-pop border-accent-line bg-surface-3" : "border-line bg-surface-2",
               invalid && "border-danger/55",
