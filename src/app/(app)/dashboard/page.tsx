@@ -5,6 +5,7 @@ import { RoleBadge } from "@/components/role-badge";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
+import { CHURCH_NAME } from "@/lib/brand";
 import { fullName } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -43,7 +44,7 @@ export default async function DashboardPage() {
         <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.02em]">
           Welcome, {greetingName}
         </h1>
-        <p className="mt-1.5 text-sm text-muted">Hope Nation Church.</p>
+        <p className="mt-1.5 text-sm text-muted">{CHURCH_NAME}.</p>
       </header>
 
       {!profile.position_id ? (

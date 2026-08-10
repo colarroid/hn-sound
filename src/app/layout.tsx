@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { APP_DESCRIPTION, DEPARTMENT_NAME } from "@/lib/brand";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,11 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Sound & Technical",
-    template: "%s | Sound & Technical",
+    default: DEPARTMENT_NAME,
+    template: `%s | ${DEPARTMENT_NAME}`,
   },
-  description:
-    "Internal platform for the Sound & Technical Department of Hope Nation Church.",
+  description: APP_DESCRIPTION,
   robots: { index: false, follow: false },
   icons: {
     icon: [{ url: "/assets/favicon.png", type: "image/png" }],

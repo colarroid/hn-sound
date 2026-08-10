@@ -1,4 +1,4 @@
-# Hope Nation Church, Sound & Technical Department
+# The Hope Nation Church, Sound & Technical Department
 
 Internal web platform for the Sound & Technical Department. Members sign
 themselves up, an admin assigns roles and department positions, and the
@@ -91,7 +91,7 @@ In **Authentication > Emails > SMTP Settings**, turn on custom SMTP:
 | Username     | `resend`                             |
 | Password     | the Resend API key                   |
 | Sender email | `no-reply@<verified domain>`         |
-| Sender name  | Hope Nation Church Sound & Technical |
+| Sender name  | The Hope Nation Church Sound & Technical |
 
 Then raise **Rate limit for sending emails** from the default 30 per hour. A
 hundred is plenty for a department of this size.
@@ -103,10 +103,10 @@ The app itself never touches the Resend key. It stays in the Supabase dashboard.
 Paste each file from `supabase/email-templates/` into the matching template
 under **Authentication > Emails**:
 
-| File                   | Template       | Subject                                     |
-| ---------------------- | -------------- | ------------------------------------------- |
-| `confirm-signup.html`  | Confirm signup | Your Hope Nation Church verification code   |
-| `reset-password.html`  | Reset password | Reset your Hope Nation Church password      |
+| File                  | Template       | Subject                                            |
+| --------------------- | -------------- | -------------------------------------------------- |
+| `confirm-signup.html` | Confirm signup | Your verification code for The Hope Nation Church  |
+| `reset-password.html` | Reset password | Reset your password for The Hope Nation Church     |
 
 The confirmation email contains a **six digit code and no link**, so the member
 finishes signing up in the tab they started in. Password reset still uses a link,

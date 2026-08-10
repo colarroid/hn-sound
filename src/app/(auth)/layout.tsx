@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import { Wordmark } from "@/components/brand";
+import { CHURCH_NAME } from "@/lib/brand";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -17,7 +18,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </main>
 
       <footer className="px-6 pb-10 text-center text-[10.5px] uppercase tracking-[0.16em] text-muted">
-        Hope Nation Church
+        {CHURCH_NAME}
       </footer>
     </div>
   );

@@ -1,9 +1,9 @@
 import Image from "next/image";
 
+import { CHURCH_NAME, DEPARTMENT_NAME } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
-export const CHURCH_NAME = "Hope Nation Church";
-export const DEPARTMENT_NAME = "Sound & Technical";
+export { CHURCH_NAME, DEPARTMENT_NAME };
 
 /**
  * The church mark. logo-dark.svg is the supplied logo with the black lettering
