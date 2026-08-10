@@ -171,6 +171,37 @@ Keep `NEXT_PUBLIC_SITE_URL` pointing at `http://localhost:3100` in your local
 `.env.local`. The production host belongs in Vercel's environment variables, not
 in the local file.
 
+## Members and birthdays
+
+`/members` is one list serving both purposes. Every approved member sees names,
+department positions, phone numbers, and email addresses, with phone and email as
+`tel:` and `mailto:` links so a phone can dial straight from it. Search filters on
+name, position, email, and phone.
+
+An admin gets an **Edit** control on each row for role and department position, so
+changing someone's role no longer means opening the SQL editor. Two guards sit on
+it, both server side:
+
+- You cannot revoke your own access.
+- You cannot drop your own admin role while you are the only admin, otherwise the
+  department would be left with nobody able to approve members or manage training.
+
+**Revoking** sends an approved member back to `declined`. They keep their account
+and their history, see the declined screen with the reason, and drop off the
+directory immediately. Reversible from Approvals.
+
+Pending and revoked accounts never appear in the directory. They live in Approvals.
+
+`/birthdays` orders everyone by whoever is next, grouped into Today, the next 30
+days, and later in the year, with the age each person is turning. The next three
+also ride along on the dashboard, because a birthdays page nobody opens is a
+birthdays page nobody uses.
+
+Two details in `src/lib/birthdays.ts` worth keeping: "today" is resolved in
+`Africa/Lagos` rather than UTC, so the list agrees with the people reading it
+either side of midnight, and a 29 February birthday is marked on the 28th in
+common years rather than rolling silently into March.
+
 ## Training
 
 Eligibility is explicit and per person. There is no "visible to everyone" flag,
