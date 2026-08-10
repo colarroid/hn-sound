@@ -15,6 +15,8 @@ type Existing = {
   id: string;
   title: string;
   summary: string | null;
+  lesson_number: number | null;
+  expectations: string | null;
   kind: TrainingMaterialKind;
   url: string | null;
   file_name: string | null;
@@ -105,6 +107,29 @@ export function MaterialForm({ existing }: { existing?: Existing }) {
       </Field>
 
       <Field
+        label="Week of the course"
+        htmlFor="lessonNumber"
+        error={errors.lessonNumber}
+        hint="Leave blank for reference material that belongs to no particular week."
+        className="sm:max-w-[12rem]"
+      >
+        <Input
+          id="lessonNumber"
+          name="lessonNumber"
+          type="number"
+          inputMode="numeric"
+          min={1}
+          max={999}
+          step={1}
+          placeholder="1"
+          defaultValue={
+            values.lessonNumber ?? (existing?.lesson_number?.toString() ?? "")
+          }
+          invalid={Boolean(errors.lessonNumber)}
+        />
+      </Field>
+
+      <Field
         label="Summary"
         htmlFor="summary"
         error={errors.summary}
@@ -116,6 +141,22 @@ export function MaterialForm({ existing }: { existing?: Existing }) {
           rows={2}
           defaultValue={values.summary ?? existing?.summary ?? ""}
           invalid={Boolean(errors.summary)}
+        />
+      </Field>
+
+      <Field
+        label="What the trainee should learn"
+        htmlFor="expectations"
+        error={errors.expectations}
+        hint="The trainee reads this alongside the material. Say what they should be able to do afterwards."
+      >
+        <Textarea
+          id="expectations"
+          name="expectations"
+          rows={4}
+          placeholder="By the end of this you should be able to set gain structure on the desk without clipping, and explain why."
+          defaultValue={values.expectations ?? existing?.expectations ?? ""}
+          invalid={Boolean(errors.expectations)}
         />
       </Field>
 

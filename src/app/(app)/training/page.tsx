@@ -61,9 +61,11 @@ export default async function TrainingPage() {
   const supabase = await createClient();
   // Row level security does the filtering: a member gets only what they have
   // been granted, an admin or the senior pastor gets the whole library.
+  // Course order: week 1 first, unnumbered reference material last.
   const { data } = await supabase
     .from("training_materials")
     .select("*")
+    .order("lesson_number", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   const materials = (data ?? []) as TrainingMaterialRow[];

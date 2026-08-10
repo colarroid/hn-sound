@@ -32,6 +32,10 @@ export type TrainingMaterialRow = {
   id: string;
   title: string;
   summary: string | null;
+  /** Which week of the course this belongs to. Null for reference material. */
+  lesson_number: number | null;
+  /** What the trainer expects the trainee to take away from it. */
+  expectations: string | null;
   kind: TrainingMaterialKind;
   url: string | null;
   file_path: string | null;

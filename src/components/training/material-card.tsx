@@ -5,13 +5,16 @@ import type { TrainingMaterialRow } from "@/lib/database.types";
 import { fileTypeLabel, formatBytes } from "@/lib/training/constants";
 import { cn } from "@/lib/utils";
 
+export function lessonLabel(lessonNumber: number | null) {
+  return lessonNumber === null ? "Reference" : `Week ${lessonNumber}`;
+}
+
 function KindBadge({ material }: { material: TrainingMaterialRow }) {
-  const label =
-    material.kind === "link" ? "Link" : fileTypeLabel(material.mime_type);
+  const label = material.kind === "link" ? "Link" : fileTypeLabel(material.mime_type);
   const size = material.kind === "file" ? formatBytes(material.file_size) : "";
 
   return (
-    <span className="inline-flex items-center gap-1.5 border border-line bg-surface-2 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.11em] text-muted">
+    <span className="inline-flex shrink-0 items-center gap-1.5 border border-line bg-surface-2 px-2 py-[3px] text-[10px] font-medium uppercase tracking-[0.11em] text-muted">
       {label}
       {size ? <span className="text-muted/70">{size}</span> : null}
     </span>
@@ -36,23 +39,41 @@ export function MaterialCard({
   return (
     <Card className={cn("flex flex-col p-5", className)}>
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-medium leading-snug text-ink">{material.title}</h3>
+        <p
+          className={cn(
+            "text-[9.5px] font-medium uppercase tracking-[0.2em]",
+            material.lesson_number === null ? "text-muted" : "text-accent-text",
+          )}
+        >
+          {lessonLabel(material.lesson_number)}
+        </p>
         <KindBadge material={material} />
       </div>
 
+      <h3 className="mt-2.5 text-sm font-medium leading-snug text-ink">
+        {material.title}
+      </h3>
+
       {material.summary ? (
-        <p className="mt-2.5 text-[13px] leading-relaxed text-muted">
-          {material.summary}
-        </p>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">{material.summary}</p>
+      ) : null}
+
+      {material.expectations ? (
+        <div className="mt-4 border-l-2 border-accent-line bg-surface-2/60 px-3.5 py-3">
+          <p className="text-[9.5px] font-medium uppercase tracking-[0.16em] text-muted">
+            What you should learn
+          </p>
+          <p className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed text-ink-dim">
+            {material.expectations}
+          </p>
+        </div>
       ) : null}
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
         {meta ? <span className="text-[11px] text-muted">{meta}</span> : <span />}
         <Link
           href={href}
-          {...(external
-            ? { target: "_blank", rel: "noopener noreferrer" }
-            : {})}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium text-accent-text transition-colors duration-200 hover:text-ink"
         >
           {actionLabel}

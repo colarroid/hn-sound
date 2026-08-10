@@ -19,6 +19,22 @@ const summarySchema = z
   .max(500, "Keep it under 500 characters.")
   .transform((value) => value || null);
 
+/** Blank means "no particular week", which is valid for reference material. */
+const lessonNumberSchema = z
+  .string()
+  .trim()
+  .transform((value) => (value === "" ? null : Number(value)))
+  .refine(
+    (value) => value === null || (Number.isInteger(value) && value >= 1 && value <= 999),
+    "Use a whole number between 1 and 999, or leave it blank.",
+  );
+
+const expectationsSchema = z
+  .string()
+  .trim()
+  .max(1000, "Keep it under 1000 characters.")
+  .transform((value) => value || null);
+
 const urlSchema = z
   .string()
   .trim()
@@ -77,10 +93,14 @@ export async function createMaterialAction(
   const kind = formData.get("kind") === "file" ? "file" : "link";
   const title = titleSchema.safeParse(formData.get("title"));
   const summary = summarySchema.safeParse(formData.get("summary") ?? "");
+  const lessonNumber = lessonNumberSchema.safeParse(formData.get("lessonNumber") ?? "");
+  const expectations = expectationsSchema.safeParse(formData.get("expectations") ?? "");
 
   const values = {
     title: formData.get("title")?.toString() ?? "",
     summary: formData.get("summary")?.toString() ?? "",
+    lessonNumber: formData.get("lessonNumber")?.toString() ?? "",
+    expectations: formData.get("expectations")?.toString() ?? "",
     url: formData.get("url")?.toString() ?? "",
     kind,
   };
@@ -88,6 +108,8 @@ export async function createMaterialAction(
   const errors: Record<string, string> = {};
   if (!title.success) errors.title = title.error.issues[0].message;
   if (!summary.success) errors.summary = summary.error.issues[0].message;
+  if (!lessonNumber.success) errors.lessonNumber = lessonNumber.error.issues[0].message;
+  if (!expectations.success) errors.expectations = expectations.error.issues[0].message;
 
   let url: string | null = null;
   let filePath: string | null = null;
@@ -132,6 +154,8 @@ export async function createMaterialAction(
   const { error } = await supabase.from("training_materials").insert({
     title: title.data!,
     summary: summary.data!,
+    lesson_number: lessonNumber.data!,
+    expectations: expectations.data!,
     kind,
     url,
     file_path: filePath,
@@ -162,10 +186,14 @@ export async function updateMaterialAction(
 
   const title = titleSchema.safeParse(formData.get("title"));
   const summary = summarySchema.safeParse(formData.get("summary") ?? "");
+  const lessonNumber = lessonNumberSchema.safeParse(formData.get("lessonNumber") ?? "");
+  const expectations = expectationsSchema.safeParse(formData.get("expectations") ?? "");
 
   const errors: Record<string, string> = {};
   if (!title.success) errors.title = title.error.issues[0].message;
   if (!summary.success) errors.summary = summary.error.issues[0].message;
+  if (!lessonNumber.success) errors.lessonNumber = lessonNumber.error.issues[0].message;
+  if (!expectations.success) errors.expectations = expectations.error.issues[0].message;
 
   const supabase = await createClient();
   const { data: existing } = await supabase
@@ -212,7 +240,13 @@ export async function updateMaterialAction(
 
   const { error } = await supabase
     .from("training_materials")
-    .update({ ...patch, title: title.data!, summary: summary.data! })
+    .update({
+      ...patch,
+      title: title.data!,
+      summary: summary.data!,
+      lesson_number: lessonNumber.data!,
+      expectations: expectations.data!,
+    })
     .eq("id", id);
 
   if (error) {

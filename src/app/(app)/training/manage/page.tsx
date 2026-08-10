@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { lessonLabel } from "@/components/training/material-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
 import type { TrainingMaterialRow } from "@/lib/database.types";
 import { fileTypeLabel, formatBytes } from "@/lib/training/constants";
 import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 import { DeleteMaterialButton } from "./delete-material-button";
 
 export const metadata: Metadata = { title: "Manage training" };
@@ -16,7 +18,11 @@ export default async function ManageTrainingPage() {
 
   const supabase = await createClient();
   const [materialsResult, grantsResult] = await Promise.all([
-    supabase.from("training_materials").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("training_materials")
+      .select("*")
+      .order("lesson_number", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false }),
     supabase.from("training_eligibility").select("material_id"),
   ]);
 
@@ -100,6 +106,14 @@ export default async function ManageTrainingPage() {
                         </p>
                       ) : null}
                       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted">
+                        <span
+                          className={cn(
+                            "uppercase tracking-[0.11em]",
+                            material.lesson_number !== null && "text-accent-text",
+                          )}
+                        >
+                          {lessonLabel(material.lesson_number)}
+                        </span>
                         <span className="uppercase tracking-[0.11em]">
                           {material.kind === "link"
                             ? "Link"

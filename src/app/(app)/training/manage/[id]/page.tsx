@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ROLE_LABELS } from "@/components/role-badge";
+import { lessonLabel } from "@/components/training/material-card";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
@@ -61,6 +62,7 @@ export default async function EditMaterialPage({
           {material.title}
         </h1>
         <p className="mt-1.5 text-sm text-muted">
+          {lessonLabel(material.lesson_number)} ·{" "}
           {material.kind === "link" ? "External link" : "Uploaded file"}
         </p>
       </header>
@@ -74,6 +76,8 @@ export default async function EditMaterialPage({
                 id: material.id,
                 title: material.title,
                 summary: material.summary,
+                lesson_number: material.lesson_number,
+                expectations: material.expectations,
                 kind: material.kind,
                 url: material.url,
                 file_name: material.file_name,
