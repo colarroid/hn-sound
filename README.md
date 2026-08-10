@@ -68,9 +68,17 @@ filename order:
 - `0003_signup_approval.sql`: the admin approval gate. Adds `approval_status` to
   profiles, tightens RLS so an unapproved account can only see itself, and
   auto-approves the very first profile so the department can bootstrap.
+- `0004_position_as_text.sql`: department position becomes free text typed at
+  approval. **Destructive**, it drops the `department_positions` lookup table.
+- `0005_repair_migration_order.sql`: idempotent repair. `0003` and `0004` both
+  redefine `guard_profile_privileges`, so applying them out of order leaves a
+  broken version installed and every profile update fails. Run this last and it
+  lands the correct final state either way.
+- `0006_training.sql`: training materials, per member eligibility, RLS, and the
+  private `training` storage bucket.
 
-`0003` is not optional. Until it runs, every member lands on the waiting screen,
-because the code reads a column the database does not have yet.
+None of these are optional. The app reads columns that only exist once they run,
+and until then members land on the waiting screen or see empty sections.
 
 ### 3. Configure auth
 
@@ -162,6 +170,31 @@ forgetting any of them breaks email or sign in:
 Keep `NEXT_PUBLIC_SITE_URL` pointing at `http://localhost:3100` in your local
 `.env.local`. The production host belongs in Vercel's environment variables, not
 in the local file.
+
+## Training
+
+Eligibility is explicit and per person. There is no "visible to everyone" flag,
+because the brief is that members see only what they are eligible for. A material
+with nobody ticked is visible to the admin and the senior pastor only.
+
+A member eligible for nothing gets an access denied panel rather than an empty
+list, which is also what the brief asks for. The filtering itself is RLS, not
+application code: `/training` selects every material and the database returns only
+the rows the caller has been granted.
+
+Material is either an **external link** or an **uploaded file**. Host video as a
+link; the free tier gives 1GB of storage in total. Uploads are capped at 10MB by
+the bucket, by the server action, and by `serverActions.bodySizeLimit`.
+
+The `training` bucket is private and has **no storage policies on purpose**. With
+RLS on and nothing granting access, neither `anon` nor `authenticated` can reach
+those objects directly. Downloads go through `/training/[id]/download`, which
+selects the material as the signed-in member so RLS performs the eligibility
+check, and only then signs a 60 second URL with the service role. Eligibility
+lives in one place instead of being duplicated into storage policies.
+
+Verified against the live project: an anonymous download is blocked, the public
+URL returns 400, and only a service role signed URL resolves.
 
 ## Design
 

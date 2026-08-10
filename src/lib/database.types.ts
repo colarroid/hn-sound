@@ -26,6 +26,30 @@ export type ProfileRow = {
   updated_at: string;
 };
 
+export type TrainingMaterialKind = "link" | "file";
+
+export type TrainingMaterialRow = {
+  id: string;
+  title: string;
+  summary: string | null;
+  kind: TrainingMaterialKind;
+  url: string | null;
+  file_path: string | null;
+  file_name: string | null;
+  file_size: number | null;
+  mime_type: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TrainingEligibilityRow = {
+  material_id: string;
+  profile_id: string;
+  granted_by: string | null;
+  granted_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -45,16 +69,59 @@ export type Database = {
           },
         ];
       };
+      training_materials: {
+        Row: TrainingMaterialRow;
+        Insert: Partial<TrainingMaterialRow> & {
+          title: string;
+          kind: TrainingMaterialKind;
+        };
+        Update: Partial<TrainingMaterialRow>;
+        Relationships: [
+          {
+            foreignKeyName: "training_materials_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      training_eligibility: {
+        Row: TrainingEligibilityRow;
+        Insert: Partial<TrainingEligibilityRow> & {
+          material_id: string;
+          profile_id: string;
+        };
+        Update: Partial<TrainingEligibilityRow>;
+        Relationships: [
+          {
+            foreignKeyName: "training_eligibility_material_id_fkey";
+            columns: ["material_id"];
+            isOneToOne: false;
+            referencedRelation: "training_materials";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "training_eligibility_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       current_user_role: { Args: Record<string, never>; Returns: AppRole };
       is_admin: { Args: Record<string, never>; Returns: boolean };
       is_approved: { Args: Record<string, never>; Returns: boolean };
+      can_oversee: { Args: Record<string, never>; Returns: boolean };
     };
     Enums: {
       app_role: AppRole;
       member_approval_status: ApprovalStatus;
+      training_material_kind: TrainingMaterialKind;
     };
     CompositeTypes: Record<string, never>;
   };

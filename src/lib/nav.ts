@@ -25,6 +25,7 @@ export type IconName =
  */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  { href: "/training", label: "Training", icon: "training" },
   {
     href: "/approvals",
     label: "Approvals",
