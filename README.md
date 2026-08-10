@@ -36,9 +36,11 @@ Runs on a subdomain of the church website.
 | Treasurer     | Posts credits and debits against the department balance                 |
 | Member        | Default on signup. Per-section limits described in each section          |
 
-Department position (Senior Engineer, Stage Engineer, and so on) is separate
-from role. It describes what someone does in the department and grants no
-permissions. The admin sets it.
+Department position (Asst. Head of Department, Stage Engineer, and so on) is
+separate from role. It describes what someone does in the department and grants
+no permissions. It is **free text**, typed by the admin at the moment of
+approval, because the titles a department uses are not a closed set. Previously
+used titles are offered as autocomplete so spelling stays consistent.
 
 ## Local setup
 
@@ -149,13 +151,17 @@ project:
 | `SUPABASE_SERVICE_ROLE_KEY`     | same as local, server only           |
 | `NEXT_PUBLIC_SITE_URL`          | the deployed origin, no trailing slash |
 
-Three things then need the real host, and forgetting any of them breaks email:
+The deployed host is `sound.thehopenation.net`. It appears in three places, and
+forgetting any of them breaks email or sign in:
 
 1. Supabase **Authentication > URL Configuration**: Site URL and the redirect
    allow list.
-2. Both files in `supabase/email-templates/`: replace `REPLACE_WITH_YOUR_HOST`
-   so the logo loads.
+2. The `img src` in both files in `supabase/email-templates/`, so the logo loads.
 3. `NEXT_PUBLIC_SITE_URL` above.
+
+Keep `NEXT_PUBLIC_SITE_URL` pointing at `http://localhost:3100` in your local
+`.env.local`. The production host belongs in Vercel's environment variables, not
+in the local file.
 
 ## Design
 

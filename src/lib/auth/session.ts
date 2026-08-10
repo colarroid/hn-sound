@@ -6,7 +6,7 @@ import type { AppRole, ProfileRow } from "@/lib/database.types";
 
 export type CurrentMember = {
   user: User;
-  profile: ProfileRow & { position: { id: string; name: string } | null };
+  profile: ProfileRow;
 };
 
 /** Null when signed out or when the profile row has not appeared yet. */
@@ -19,12 +19,12 @@ export async function getCurrentMember(): Promise<CurrentMember | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*, position:department_positions(id, name)")
+    .select("*")
     .eq("id", user.id)
     .maybeSingle();
 
   if (!profile) return null;
-  return { user, profile: profile as CurrentMember["profile"] };
+  return { user, profile };
 }
 
 /**

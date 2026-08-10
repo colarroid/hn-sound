@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
 import type { ProfileRow } from "@/lib/database.types";
+import { positionOptions } from "@/lib/positions";
+import { createClient } from "@/lib/supabase/server";
 import { fullName } from "@/lib/utils";
 import { ApprovalRow, type PendingMember } from "./approval-row";
 
 export const metadata: Metadata = { title: "Approvals" };
+
+const POSITION_DATALIST_ID = "department-positions";
 
 function formatDay(value: string | null) {
   if (!value) return "Not set";
@@ -27,6 +30,8 @@ function toPendingMember(profile: ProfileRow): PendingMember {
     phone: profile.phone,
     dobLabel: formatDay(profile.date_of_birth),
     joinedLabel: formatDay(profile.created_at),
+    position: profile.position,
+    role: profile.role,
     declineReason: profile.decline_reason,
   };
 }
@@ -36,18 +41,31 @@ export default async function ApprovalsPage() {
   const canAct = profile.role === "admin";
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("profiles")
-    .select("*")
-    .in("approval_status", ["pending", "declined"])
-    .order("created_at", { ascending: true });
 
-  const rows = (data ?? []) as ProfileRow[];
+  const [queue, existing] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("*")
+      .in("approval_status", ["pending", "declined"])
+      .order("created_at", { ascending: true }),
+    // Titles already in use join the autocomplete, so the second Stage Engineer
+    // is spelled the same as the first.
+    supabase.from("profiles").select("position").not("position", "is", null),
+  ]);
+
+  const rows = (queue.data ?? []) as ProfileRow[];
   const pending = rows.filter((row) => row.approval_status === "pending");
   const declined = rows.filter((row) => row.approval_status === "declined");
+  const suggestions = positionOptions((existing.data ?? []).map((row) => row.position));
 
   return (
     <div className="space-y-7">
+      <datalist id={POSITION_DATALIST_ID}>
+        {suggestions.map((title) => (
+          <option key={title} value={title} />
+        ))}
+      </datalist>
+
       <header className="anim-rise">
         <p className="text-[9.5px] font-medium uppercase tracking-[0.2em] text-accent-text">
           Access control
@@ -55,7 +73,7 @@ export default async function ApprovalsPage() {
         <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.02em]">Approvals</h1>
         <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
           {canAct
-            ? "New signups wait here until you let them in. Nobody reaches the dashboard, the directory, or anything else until you approve them."
+            ? "New signups wait here until you let them in. Set their role and department position as you approve them. Nobody reaches the dashboard, the directory, or anything else until you do."
             : "New signups wait here until an admin lets them in. This list is read only for your role."}
         </p>
       </header>
@@ -82,6 +100,7 @@ export default async function ApprovalsPage() {
                   key={row.id}
                   member={toPendingMember(row)}
                   canAct={canAct}
+                  datalistId={POSITION_DATALIST_ID}
                 />
               ))}
             </ul>
@@ -102,6 +121,7 @@ export default async function ApprovalsPage() {
                   key={row.id}
                   member={toPendingMember(row)}
                   canAct={canAct}
+                  datalistId={POSITION_DATALIST_ID}
                   declined
                 />
               ))}

@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         <p className="mt-1.5 text-sm text-muted">{CHURCH_NAME}.</p>
       </header>
 
-      {!profile.position_id ? (
+      {!profile.position ? (
         <div className="anim-rise d-1">
           <Alert tone="info">
             An admin has not set your department position yet. You still have full
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
             <Detail label="Date of birth" value={formatDate(profile.date_of_birth)} />
             <Detail
               label="Department position"
-              value={profile.position?.name ?? "Not assigned yet"}
+              value={profile.position ?? "Not assigned yet"}
             />
             <Detail label="Role" value={<RoleBadge role={profile.role} />} />
           </dl>

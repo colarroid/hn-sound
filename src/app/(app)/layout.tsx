@@ -28,7 +28,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         email: profile.email,
         initials: initials(profile),
         role: profile.role,
-        position: profile.position?.name ?? null,
+        position: profile.position,
       }}
       navItems={navFor(profile.role)}
       badges={{ "/approvals": pendingCount }}
