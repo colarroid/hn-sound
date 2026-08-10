@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthPanel } from "@/components/auth-panel";
-import { Wordmark } from "@/components/brand";
+import { CenteredFrame } from "@/components/centered-frame";
 
 export const metadata: Metadata = { title: "Link problem" };
 
@@ -25,51 +25,43 @@ export default async function AuthErrorPage({
     (reason && REASONS[reason]) ?? "Something about that link did not work.";
 
   return (
-    <div className="backdrop-signed-out flex min-h-screen flex-col">
-      <header className="anim-fade flex justify-center px-6 pb-9 pt-12">
-        <Wordmark priority />
-      </header>
-
-      <main className="flex flex-1 justify-center px-5 pb-16">
-        <div className="w-full max-w-[26rem]">
-          <AuthPanel
-            eyebrow="Link problem"
-            title="This link did not work"
-            description={explanation}
-            footer={
-              detail ? (
-                <p className="font-mono text-[11px] leading-relaxed break-words text-muted/70">
-                  {detail}
-                </p>
-              ) : undefined
-            }
-          >
-            <div className="space-y-3 text-[13px] leading-relaxed text-ink-dim">
-              <p className="text-muted">Two ways forward:</p>
-              <p>
-                Signing up?{" "}
-                <Link
-                  href="/signup"
-                  className="font-medium text-accent-text transition-colors hover:text-ink"
-                >
-                  Start again
-                </Link>{" "}
-                and we will send a fresh code.
-              </p>
-              <p>
-                Resetting a password?{" "}
-                <Link
-                  href="/forgot-password"
-                  className="font-medium text-accent-text transition-colors hover:text-ink"
-                >
-                  Request a new link
-                </Link>
-                .
-              </p>
-            </div>
-          </AuthPanel>
+    <CenteredFrame>
+      <AuthPanel
+        eyebrow="Link problem"
+        title="This link did not work"
+        description={explanation}
+        footer={
+          detail ? (
+            <p className="font-mono text-[11px] leading-relaxed break-words text-muted/70">
+              {detail}
+            </p>
+          ) : undefined
+        }
+      >
+        <div className="space-y-3 text-[13px] leading-relaxed text-ink-dim">
+          <p className="text-muted">Two ways forward:</p>
+          <p>
+            Signing up?{" "}
+            <Link
+              href="/signup"
+              className="font-medium text-accent-text transition-colors hover:text-ink"
+            >
+              Start again
+            </Link>{" "}
+            and we will send a fresh code.
+          </p>
+          <p>
+            Resetting a password?{" "}
+            <Link
+              href="/forgot-password"
+              className="font-medium text-accent-text transition-colors hover:text-ink"
+            >
+              Request a new link
+            </Link>
+            .
+          </p>
         </div>
-      </main>
-    </div>
+      </AuthPanel>
+    </CenteredFrame>
   );
 }

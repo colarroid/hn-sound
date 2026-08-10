@@ -63,6 +63,12 @@ filename order:
 - `0002_fix_privilege_guard.sql`: narrows the privilege guard so the service role
   and the SQL editor are not caught by it. Without this, no admin can be
   appointed.
+- `0003_signup_approval.sql`: the admin approval gate. Adds `approval_status` to
+  profiles, tightens RLS so an unapproved account can only see itself, and
+  auto-approves the very first profile so the department can bootstrap.
+
+`0003` is not optional. Until it runs, every member lands on the waiting screen,
+because the code reads a column the database does not have yet.
 
 ### 3. Configure auth
 
@@ -166,6 +172,29 @@ The supplied `logo.svg` has black lettering, which disappears on a dark
 background, so `logo-dark.svg` is the same file with only those four lettering
 fills recoloured. The crimson artwork is untouched. Regenerate it if the logo
 changes.
+
+## Getting in: the three gates
+
+A member has to clear all three before they see the dashboard.
+
+1. **Signed in.** Handled by the proxy, which sends everyone else to `/login`.
+2. **Email confirmed**, by six digit code. Proves the address is real.
+3. **Approved by an admin.** Proves the department wants them. New signups land
+   on `/pending-approval` until the head of department approves them from
+   `/approvals`.
+
+The third gate is a security boundary, not a screen. An unapproved account holds
+a valid token, so RLS restricts it to reading its own profile row and nothing
+else. Without that it could read the whole members directory straight off the
+API while still sitting on the waiting screen.
+
+Approval is not self service either: the `guard_profile_privileges` trigger
+reverts any change a non-admin makes to `approval_status`, `approved_at`,
+`approved_by`, or `decline_reason`, so a member cannot approve themselves with a
+single API call.
+
+Declining is reversible. A declined member can still sign in, sees the reason if
+one was given, and approving them later undoes it.
 
 ## What the auth flow does
 

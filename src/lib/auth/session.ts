@@ -28,16 +28,26 @@ export async function getCurrentMember(): Promise<CurrentMember | null> {
 }
 
 /**
- * The gate every signed-in page sits behind. Middleware already redirects the
- * signed-out and the unverified, so this is the second line rather than the
- * first, and it is what gives pages a typed profile to work with.
+ * Signed in with a confirmed email address. Says nothing about approval, so the
+ * waiting screen can use it without bouncing itself in a loop.
  */
-export async function requireMember(): Promise<CurrentMember> {
+export async function requireVerifiedMember(): Promise<CurrentMember> {
   const member = await getCurrentMember();
   if (!member) redirect("/login");
   if (!member.user.email_confirmed_at) {
     redirect(`/verify-email?email=${encodeURIComponent(member.user.email ?? "")}`);
   }
+  return member;
+}
+
+/**
+ * The gate every signed-in page sits behind: confirmed email and an approved
+ * account. Confirming an email address proves the address is real, not that the
+ * department wants this person in, so both checks have to pass.
+ */
+export async function requireMember(): Promise<CurrentMember> {
+  const member = await requireVerifiedMember();
+  if (member.profile.approval_status !== "approved") redirect("/pending-approval");
   return member;
 }
 
@@ -48,8 +58,9 @@ export async function requireRole(...roles: AppRole[]): Promise<CurrentMember> {
 }
 
 export const can = {
-  /** Assign roles and positions, and edit anything on the platform. */
+  /** Assign roles and positions, approve signups, and edit anything. */
   manageMembers: (role: AppRole) => role === "admin",
+  approveSignups: (role: AppRole) => role === "admin",
   manageTraining: (role: AppRole) => role === "admin",
   manageInventoryCategories: (role: AppRole) => role === "admin",
   /** Post debits against the department balance. */

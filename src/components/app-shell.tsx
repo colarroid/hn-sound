@@ -24,10 +24,13 @@ type ShellMember = {
 export function AppShell({
   member,
   navItems,
+  badges,
   children,
 }: {
   member: ShellMember;
   navItems: NavItem[];
+  /** Counts keyed by nav href. Zero or missing renders nothing. */
+  badges?: Record<string, number>;
   children: ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,6 +41,7 @@ export function AppShell({
     <nav className="space-y-px">
       {navItems.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const badge = badges?.[item.href] ?? 0;
         return (
           <Link
             key={item.href}
@@ -70,6 +74,14 @@ export function AppShell({
               )}
             />
             {item.label}
+            {badge > 0 ? (
+              <span
+                className="ml-auto min-w-5 border border-accent-line bg-accent-soft px-1.5 py-0.5 text-center text-[10px] font-semibold tabular-nums text-accent-text"
+                aria-label={`${badge} waiting`}
+              >
+                {badge}
+              </span>
+            ) : null}
           </Link>
         );
       })}

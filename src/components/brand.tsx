@@ -23,7 +23,9 @@ export function BrandLogo({
       src="/assets/logo-dark.svg"
       alt={CHURCH_NAME}
       width={width}
-      height={Math.round((width / 110) * 50)}
+      // The file's intrinsic box is 110x55. Deriving height from the clip path's
+      // 50 instead made next/image warn that the ratio had been altered.
+      height={Math.round((width / 110) * 55)}
       priority={priority}
       unoptimized
       className={cn("shrink-0", className)}

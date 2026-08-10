@@ -10,6 +10,7 @@ export type NavItem = {
 
 export type IconName =
   | "dashboard"
+  | "approvals"
   | "members"
   | "cake"
   | "inventory"
@@ -24,6 +25,13 @@ export type IconName =
  */
 export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
+  {
+    href: "/approvals",
+    label: "Approvals",
+    icon: "approvals",
+    // The senior pastor sees the queue and cannot act on it.
+    roles: ["admin", "senior_pastor"],
+  },
 ];
 
 export function navFor(role: AppRole) {
