@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { parseForm, type FormState } from "@/lib/form-state";
 import { safeNextPath, siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
+import { OTP_LENGTH, OTP_MAX_LENGTH, OTP_MIN_LENGTH } from "./otp";
 import { emailSchema, passwordSchema, signInSchema, signUpSchema } from "./schemas";
 
 /** Retyping a long signup form because of one bad field is miserable. */
@@ -77,9 +78,16 @@ export async function verifyEmailCodeAction(
     };
   }
 
+  // Accept anything inside Supabase's permitted range rather than one exact
+  // length, so a dashboard change to Email OTP Length cannot hard block a member
+  // before the app is rebuilt with a matching OTP_LENGTH.
   const token = (formData.get("token") ?? "").toString().replace(/\D/g, "");
-  if (token.length !== 6) {
-    return { ok: false, attempt, message: "Enter all six digits." };
+  if (token.length < OTP_MIN_LENGTH || token.length > OTP_MAX_LENGTH) {
+    return {
+      ok: false,
+      attempt,
+      message: `Enter all ${OTP_LENGTH} digits from the email.`,
+    };
   }
 
   const supabase = await createClient();

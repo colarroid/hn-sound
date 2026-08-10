@@ -3,19 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
+import { OTP_LENGTH } from "@/lib/auth/otp";
 import { cn } from "@/lib/utils";
 
-const LENGTH = 6;
-const EMPTY = () => Array<string>(LENGTH).fill("");
+const EMPTY = () => Array<string>(OTP_LENGTH).fill("");
 
 /**
- * Six boxes, one hidden field. Typing advances, backspace retreats, pasting the
- * whole code fills every box, and a complete code submits on its own so nobody
- * has to reach for the button.
+ * One box per digit, one hidden field. Typing advances, backspace retreats,
+ * pasting the whole code fills every box, and a complete code submits on its own
+ * so nobody has to reach for the button.
+ *
+ * The box count comes from OTP_LENGTH rather than a hardcoded six, because
+ * Supabase's Email OTP Length is configurable and a mismatch makes the code
+ * physically impossible to enter.
  *
  * The parent remounts this on every rejected attempt by keying it on the attempt
- * count, which clears the boxes, refocuses the first one, and replays the shake,
- * all without an effect reaching in to reset state.
+ * count, which clears the boxes, refocuses the first, and replays the shake, all
+ * without an effect reaching in to reset state.
  */
 export function CodeInput({ invalid }: { invalid?: boolean }) {
   const [digits, setDigits] = useState<string[]>(EMPTY);
@@ -24,11 +28,12 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
   const { pending } = useFormStatus();
 
   const code = digits.join("");
+  const roomy = OTP_LENGTH <= 7;
 
   useEffect(() => {
-    if (code.length === LENGTH && !submitted.current && !pending) {
+    if (code.length === OTP_LENGTH && !submitted.current && !pending) {
       submitted.current = true;
-      inputs.current[LENGTH - 1]?.form?.requestSubmit();
+      inputs.current[OTP_LENGTH - 1]?.form?.requestSubmit();
     }
   }, [code, pending]);
 
@@ -47,12 +52,16 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
 
     // Covers both a single keystroke and a paste that lands in one box.
     const next = [...digits];
-    for (let offset = 0; offset < digitsOnly.length && index + offset < LENGTH; offset += 1) {
+    for (
+      let offset = 0;
+      offset < digitsOnly.length && index + offset < OTP_LENGTH;
+      offset += 1
+    ) {
       next[index + offset] = digitsOnly[offset];
     }
     setDigits(next);
 
-    const landed = Math.min(index + digitsOnly.length, LENGTH - 1);
+    const landed = Math.min(index + digitsOnly.length, OTP_LENGTH - 1);
     inputs.current[landed]?.focus();
   }
 
@@ -66,7 +75,7 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
       event.preventDefault();
       inputs.current[index - 1]?.focus();
     }
-    if (event.key === "ArrowRight" && index < LENGTH - 1) {
+    if (event.key === "ArrowRight" && index < OTP_LENGTH - 1) {
       event.preventDefault();
       inputs.current[index + 1]?.focus();
     }
@@ -77,8 +86,12 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
       <input type="hidden" name="token" value={code} />
       <div
         role="group"
-        aria-label="Six digit verification code"
-        className={cn("flex justify-between gap-2", invalid && "anim-shake")}
+        aria-label={`${OTP_LENGTH} digit verification code`}
+        className={cn(
+          "flex justify-between",
+          roomy ? "gap-2" : "gap-1.5",
+          invalid && "anim-shake",
+        )}
       >
         {digits.map((digit, index) => (
           <input
@@ -93,12 +106,13 @@ export function CodeInput({ invalid }: { invalid?: boolean }) {
             type="text"
             inputMode="numeric"
             autoComplete={index === 0 ? "one-time-code" : "off"}
-            aria-label={`Digit ${index + 1} of ${LENGTH}`}
-            maxLength={LENGTH}
+            aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
+            maxLength={OTP_LENGTH}
             disabled={pending}
             autoFocus={index === 0}
             className={cn(
-              "h-14 w-full min-w-0 border text-center font-mono text-xl text-ink",
+              "w-full min-w-0 border text-center font-mono text-ink",
+              roomy ? "h-14 text-xl" : "h-12 text-base",
               "transition-[border-color,background-color] duration-200 ease-out",
               "hover:border-line-strong",
               "focus:border-accent focus:outline-none",

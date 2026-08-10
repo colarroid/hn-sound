@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AuthPanel } from "@/components/auth-panel";
 import { Alert } from "@/components/ui/alert";
+import { OTP_LENGTH_ARTICLE, OTP_LENGTH_WORD } from "@/lib/auth/otp";
 import { CodeForm } from "./code-form";
 import { ResendForm } from "./resend-form";
 
@@ -40,7 +41,7 @@ export default async function VerifyEmailPage({
       title="Confirm your email address"
       description={
         <>
-          We sent a six digit code to{" "}
+          We sent {OTP_LENGTH_ARTICLE} {OTP_LENGTH_WORD} digit code to{" "}
           <span className="font-medium text-ink">{email}</span>. Enter it below to
           finish setting up your account.
         </>
