@@ -6,12 +6,7 @@ import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
 import { upcomingBirthdays, type BirthdayPerson } from "@/lib/birthdays";
 import type { EventRow } from "@/lib/database.types";
-import {
-  AGENDA_DAYS,
-  currentMonthLabel,
-  daysAwayLabel,
-  endOfLocalMonthUtc,
-} from "@/lib/dates";
+import { AGENDA_DAYS, BIRTHDAY_WINDOW_DAYS, daysAwayLabel } from "@/lib/dates";
 import { buildAgenda, formatEventTime, formatSchedule, type AgendaItem } from "@/lib/events/schedule";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -85,11 +80,11 @@ export default async function EventsPage() {
   const soon = agenda.filter((item) => item.daysAway <= 7);
   const later = agenda.filter((item) => item.daysAway > 7);
 
-  // This calendar month only, compared by date rather than by month name so a
-  // birthday that has already passed this month is not counted from next year.
-  const monthEnd = endOfLocalMonthUtc();
-  const monthLabel = currentMonthLabel();
-  const monthBirthdays = birthdays.filter((person) => person.stamp <= monthEnd);
+  // A rolling four weeks, not the current calendar month. A month-bounded window
+  // hides a birthday on the 2nd until the month flips, which is no notice at all.
+  const soonBirthdays = birthdays.filter(
+    (person) => person.daysAway <= BIRTHDAY_WINDOW_DAYS,
+  );
 
   const repeating = events.filter((event) => event.recurrence === "weekly");
 
@@ -171,11 +166,11 @@ export default async function EventsPage() {
 
         <Card>
           <CardHeader
-            title={`Birthdays in ${monthLabel}`}
+            title="Birthdays in the next 4 weeks"
             description={
-              monthBirthdays.length === 0
+              soonBirthdays.length === 0
                 ? undefined
-                : "Still to come this month, in date order."
+                : "Enough notice to actually prepare something."
             }
             action={
               <Link
@@ -186,13 +181,13 @@ export default async function EventsPage() {
               </Link>
             }
           />
-          {monthBirthdays.length === 0 ? (
+          {soonBirthdays.length === 0 ? (
             <p className="px-5 py-8 text-center text-[13px] text-muted">
-              No birthdays left in {monthLabel}.
+              Nobody has a birthday in the next four weeks.
             </p>
           ) : (
             <ul className="divide-y divide-line">
-              {monthBirthdays.map((person) => {
+              {soonBirthdays.map((person) => {
                 const today = person.daysAway === 0;
                 return (
                   <li

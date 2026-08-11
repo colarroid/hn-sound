@@ -15,6 +15,13 @@ export const COMING_UP_DAYS = 14;
 /** How far ahead the events page looks. */
 export const AGENDA_DAYS = 60;
 
+/**
+ * How far ahead the birthdays card looks. A rolling four weeks rather than the
+ * current calendar month: on the 31st, a month-bounded window would show nothing,
+ * and a birthday on the 2nd would appear with a day's notice.
+ */
+export const BIRTHDAY_WINDOW_DAYS = 28;
+
 /** Today's calendar date where the church is, as [year, month, day]. */
 export function localToday(now = new Date()): [number, number, number] {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -32,26 +39,6 @@ export function localToday(now = new Date()): [number, number, number] {
 export function localTodayUtc(now = new Date()) {
   const [year, month, day] = localToday(now);
   return Date.UTC(year, month - 1, day);
-}
-
-/**
- * Midnight on the last day of the current local month, as a UTC timestamp.
- *
- * Used to answer "is this in the current month" by date rather than by month name.
- * A 5 August birthday seen on 11 August next occurs in August of NEXT year, so
- * matching on the month name alone would wrongly call it this month's.
- */
-export function endOfLocalMonthUtc(now = new Date()) {
-  const [year, month] = localToday(now);
-  // Day 0 of the following month is the last day of this one.
-  return Date.UTC(year, month, 0);
-}
-
-/** "August", in the church's timezone. */
-export function currentMonthLabel(now = new Date()) {
-  return new Intl.DateTimeFormat("en-GB", { month: "long", timeZone: TIMEZONE }).format(
-    now,
-  );
 }
 
 export function formatDay(stamp: number) {
