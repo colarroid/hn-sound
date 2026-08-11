@@ -83,6 +83,8 @@ function parseDate(value: string | null) {
 
 export type AgendaItem = {
   key: string;
+  /** The event or member this came from, for de-duplicating across weeks. */
+  sourceId: string;
   kind: "event" | "birthday";
   title: string;
   detail: string | null;
@@ -155,6 +157,7 @@ export function buildAgenda({
 
       out.push({
         key: `${event.id}-${stamp}`,
+        sourceId: event.id,
         kind: "event",
         title: event.title,
         detail: event.location,
@@ -170,6 +173,7 @@ export function buildAgenda({
     if (birthday.daysAway > days) continue;
     out.push({
       key: `birthday-${birthday.id}`,
+      sourceId: birthday.id,
       kind: "birthday",
       title: `${birthday.name}'s birthday`,
       detail: birthday.position,

@@ -76,7 +76,28 @@ export default async function EventsPage() {
   // listed twice on one screen.
   const agenda = buildAgenda({ events, days: AGENDA_DAYS });
   const soon = agenda.filter((item) => item.daysAway <= 7);
-  const later = agenda.filter((item) => item.daysAway > 7);
+
+  /*
+    Beyond this week the diary lists one-offs only. Repeating the same four weekly
+    events for eight more weeks was thirty rows saying nothing new, and the weekly
+    schedule card below already states the standing pattern. The exception is a
+    recurring event that has not started yet, whose first date is worth announcing.
+  */
+  const shownThisWeek = new Set(soon.map((item) => item.sourceId));
+  const announced = new Set<string>();
+  const later: typeof agenda = [];
+
+  for (const item of agenda) {
+    if (item.daysAway <= 7) continue;
+    if (!item.repeatLabel) {
+      later.push(item);
+      continue;
+    }
+    if (shownThisWeek.has(item.sourceId) || announced.has(item.sourceId)) continue;
+    announced.add(item.sourceId);
+    later.push(item);
+  }
+
   const nextBirthdays = birthdays.slice(0, 6);
 
   const repeating = events.filter((event) => event.recurrence === "weekly");
@@ -145,7 +166,10 @@ export default async function EventsPage() {
 
         {later.length > 0 ? (
           <Card>
-            <CardHeader title="Coming up" description={`The rest of the next ${AGENDA_DAYS} days.`} />
+            <CardHeader
+              title="Coming up"
+              description={`One-off events in the next ${AGENDA_DAYS} days. Anything repeating is in the weekly schedule below.`}
+            />
             <ul className="divide-y divide-line">
               {later.map((item) => (
                 <AgendaRow key={item.key} item={item} />
