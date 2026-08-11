@@ -96,14 +96,6 @@ export type AgendaItem = {
   daysAway: number;
 };
 
-/**
- * Monday on or before the given day, used to bucket occurrences into weeks so a
- * repeating event can be shown once per week instead of once per day.
- */
-function weekStart(stamp: number) {
-  const mondayOffset = (new Date(stamp).getUTCDay() + 6) % 7;
-  return stamp - mondayOffset * DAY_MS;
-}
 
 /**
  * Expands events into dated occurrences and merges the birthdays in, because to
@@ -127,12 +119,12 @@ export function buildAgenda({
   const out: AgendaItem[] = [];
 
   /*
-    A repeating event appears once per week, not once per day. Monday to Friday as
-    five near-identical rows buried everything else in the diary, and the weekday
-    label already says which days it lands on. The date shown is its first
-    occurrence in that week.
+    A repeating event appears once: its next occurrence. Not once per day, and not
+    once per week either. Fridays showing both this Friday and next Friday told the
+    reader nothing they did not already know from the weekday label, and the next
+    date surfaces on its own once the current one passes.
   */
-  const seenWeeks = new Set<string>();
+  const seenEvents = new Set<string>();
 
   for (let offset = 0; offset <= days; offset += 1) {
     const stamp = todayUtc + offset * DAY_MS;
@@ -150,9 +142,8 @@ export function buildAgenda({
         if (from !== null && stamp < from) continue;
         if (until !== null && stamp > until) continue;
 
-        const bucket = `${event.id}:${weekStart(stamp)}`;
-        if (seenWeeks.has(bucket)) continue;
-        seenWeeks.add(bucket);
+        if (seenEvents.has(event.id)) continue;
+        seenEvents.add(event.id);
       }
 
       out.push({

@@ -75,28 +75,10 @@ export default async function EventsPage() {
   // Birthdays get their own card below rather than inline rows, so they are not
   // listed twice on one screen.
   const agenda = buildAgenda({ events, days: AGENDA_DAYS });
+  // buildAgenda already reduces a repeating event to its next occurrence, so this
+  // is a plain split on how far away each one is.
   const soon = agenda.filter((item) => item.daysAway <= 7);
-
-  /*
-    Beyond this week the diary lists one-offs only. Repeating the same four weekly
-    events for eight more weeks was thirty rows saying nothing new, and the weekly
-    schedule card below already states the standing pattern. The exception is a
-    recurring event that has not started yet, whose first date is worth announcing.
-  */
-  const shownThisWeek = new Set(soon.map((item) => item.sourceId));
-  const announced = new Set<string>();
-  const later: typeof agenda = [];
-
-  for (const item of agenda) {
-    if (item.daysAway <= 7) continue;
-    if (!item.repeatLabel) {
-      later.push(item);
-      continue;
-    }
-    if (shownThisWeek.has(item.sourceId) || announced.has(item.sourceId)) continue;
-    announced.add(item.sourceId);
-    later.push(item);
-  }
+  const later = agenda.filter((item) => item.daysAway > 7);
 
   const nextBirthdays = birthdays.slice(0, 6);
 
@@ -112,8 +94,8 @@ export default async function EventsPage() {
           <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.02em]">Events</h1>
           <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
             Services, rehearsals, and anything else in the calendar, looking{" "}
-            {AGENDA_DAYS} days ahead. A repeating event is listed once a week rather
-            than once a day.
+            {AGENDA_DAYS} days ahead. A repeating event shows its next date only; the
+            one after that appears once it passes.
           </p>
         </div>
 
@@ -168,7 +150,7 @@ export default async function EventsPage() {
           <Card>
             <CardHeader
               title="Coming up"
-              description={`One-off events in the next ${AGENDA_DAYS} days. Anything repeating is in the weekly schedule below.`}
+              description={`The rest of the next ${AGENDA_DAYS} days. A repeating event is listed once, on its next date.`}
             />
             <ul className="divide-y divide-line">
               {later.map((item) => (
