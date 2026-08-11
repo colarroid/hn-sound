@@ -9,17 +9,25 @@ import { fullName, initials } from "@/lib/utils";
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const { user, profile } = await requireMember();
 
+  const supabase = await createClient();
+
   // The whole point of the approval gate is that somebody notices the queue, so
-  // the count rides along in the sidebar for the people who can see it.
-  let pendingCount = 0;
-  if (profile.role === "admin" || profile.role === "senior_pastor") {
-    const supabase = await createClient();
-    const { count } = await supabase
-      .from("profiles")
+  // the count rides along in the sidebar for the people who can see it. Broken kit
+  // is everybody's business, so that count goes to everyone.
+  const canSeeQueue = profile.role === "admin" || profile.role === "senior_pastor";
+
+  const [pendingResult, faultyResult] = await Promise.all([
+    canSeeQueue
+      ? supabase
+          .from("profiles")
+          .select("id", { count: "exact", head: true })
+          .eq("approval_status", "pending")
+      : Promise.resolve({ count: 0 }),
+    supabase
+      .from("inventory_items")
       .select("id", { count: "exact", head: true })
-      .eq("approval_status", "pending");
-    pendingCount = count ?? 0;
-  }
+      .eq("status", "faulty"),
+  ]);
 
   return (
     <AppShell
@@ -31,7 +39,10 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
         position: profile.position,
       }}
       navItems={navFor(profile.role)}
-      badges={{ "/approvals": pendingCount }}
+      badges={{
+        "/approvals": pendingResult.count ?? 0,
+        "/inventory": faultyResult.count ?? 0,
+      }}
     >
       {children}
     </AppShell>

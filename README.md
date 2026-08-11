@@ -76,6 +76,9 @@ filename order:
   lands the correct final state either way.
 - `0006_training.sql`: training materials, per member eligibility, RLS, and the
   private `training` storage bucket.
+- `0007_training_lessons.sql`: week number and expectations on a material.
+- `0008_inventory.sql`: inventory categories and items, the fault flow, the edit
+  guard, and RLS.
 
 None of these are optional. The app reads columns that only exist once they run,
 and until then members land on the waiting screen or see empty sections.
@@ -201,6 +204,27 @@ Two details in `src/lib/birthdays.ts` worth keeping: "today" is resolved in
 `Africa/Lagos` rather than UTC, so the list agrees with the people reading it
 either side of midnight, and a 29 February birthday is marked on the 28th in
 common years rather than rolling silently into March.
+
+## Inventory
+
+Items group into categories that an admin maintains. A member is never blocked by
+a missing category: leaving it blank files the item under **Uncategorised**, and
+deleting a category never deletes its items, it just sends them back there.
+
+Any approved member can add an item and flag one as faulty. Flagging requires a
+note, which is the useful half of a fault report, and the item lands on
+`/inventory/needs-fixing` with who reported it and when. Clearing a fault is open
+to anyone too, since whoever repairs a cable is rarely the admin. The faulty count
+rides on the Inventory nav item so nobody has to remember to look.
+
+The senior pastor reads the inventory and writes nothing, consistent with the role
+everywhere else. That is `can_edit_inventory()` in the database, not just a hidden
+button.
+
+`guard_inventory_edits` decides who may change what. Faults are open to any writing
+member. An item's own details are for an admin, or for whoever added it, so one
+member cannot quietly rewrite another's entry. Retiring is admin only. Retiring
+keeps the record; deleting does not, and deleting is admin only.
 
 ## Training
 

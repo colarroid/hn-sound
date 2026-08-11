@@ -54,6 +54,34 @@ export type TrainingEligibilityRow = {
   granted_at: string;
 };
 
+export type InventoryStatus = "ok" | "faulty" | "retired";
+
+export type InventoryCategoryRow = {
+  id: string;
+  name: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type InventoryItemRow = {
+  id: string;
+  name: string;
+  category_id: string | null;
+  quantity: number;
+  serial_number: string | null;
+  location: string | null;
+  notes: string | null;
+  status: InventoryStatus;
+  fault_note: string | null;
+  flagged_by: string | null;
+  flagged_at: string | null;
+  resolved_by: string | null;
+  resolved_at: string | null;
+  added_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -114,6 +142,33 @@ export type Database = {
           },
         ];
       };
+      inventory_categories: {
+        Row: InventoryCategoryRow;
+        Insert: Partial<InventoryCategoryRow> & { name: string };
+        Update: Partial<InventoryCategoryRow>;
+        Relationships: [];
+      };
+      inventory_items: {
+        Row: InventoryItemRow;
+        Insert: Partial<InventoryItemRow> & { name: string };
+        Update: Partial<InventoryItemRow>;
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_category_id_fkey";
+            columns: ["category_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_categories";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_items_added_by_fkey";
+            columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -121,11 +176,13 @@ export type Database = {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       is_approved: { Args: Record<string, never>; Returns: boolean };
       can_oversee: { Args: Record<string, never>; Returns: boolean };
+      can_edit_inventory: { Args: Record<string, never>; Returns: boolean };
     };
     Enums: {
       app_role: AppRole;
       member_approval_status: ApprovalStatus;
       training_material_kind: TrainingMaterialKind;
+      inventory_status: InventoryStatus;
     };
     CompositeTypes: Record<string, never>;
   };

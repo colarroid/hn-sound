@@ -99,7 +99,10 @@ export default async function EditMaterialPage({
                 will appear here.
               </Alert>
             ) : (
+              // Keyed on the saved set so a successful save remounts the form
+              // from server truth, rather than leaving the ticks to local state.
               <EligibilityForm
+                key={grantedIds.join(",")}
                 materialId={material.id}
                 candidates={candidates}
                 grantedIds={grantedIds}
