@@ -54,7 +54,11 @@ export type TrainingEligibilityRow = {
   granted_at: string;
 };
 
-export type InventoryStatus = "ok" | "faulty" | "retired";
+/**
+ * 'obsolete' is not 'faulty'. Faulty is broken and belongs on the needs-fixing
+ * list; obsolete still works but is due for replacement.
+ */
+export type InventoryStatus = "ok" | "faulty" | "obsolete" | "retired";
 
 export type InventoryCategoryRow = {
   id: string;

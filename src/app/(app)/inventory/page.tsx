@@ -26,6 +26,7 @@ export default async function InventoryPage() {
   });
 
   const faultyCount = views.filter((item) => item.status === "faulty").length;
+  const obsoleteCount = views.filter((item) => item.status === "obsolete").length;
 
   return (
     <div className="space-y-7">
@@ -66,6 +67,19 @@ export default async function InventoryPage() {
               See the list
             </Link>
           </Alert>
+        </div>
+      ) : null}
+
+      {obsoleteCount > 0 ? (
+        <div className="anim-rise d-1">
+          <div
+            role="status"
+            className="anim-rise border-y border-r border-l-2 border-warn-line bg-warn-soft px-3.5 py-3 text-[13px] leading-relaxed text-warn"
+          >
+            {obsoleteCount} {obsoleteCount === 1 ? "item is" : "items are"} marked
+            obsolete. They still work, but they are due for replacement rather than
+            repair.
+          </div>
         </div>
       ) : null}
 

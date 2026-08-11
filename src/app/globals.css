@@ -28,6 +28,10 @@
   --ok-soft: #0b2318;
   --danger: #ef6a5e;
   --danger-soft: #25100f;
+  /* A third state, for kit that works but is due for replacement. */
+  --warn: #d9a13a;
+  --warn-soft: #2a1f0c;
+  --warn-line: #4a380f;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -51,6 +55,9 @@
   --color-ok-soft: var(--ok-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-line: var(--warn-line);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

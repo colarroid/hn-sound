@@ -11,7 +11,9 @@ import { emptyFormState } from "@/lib/form-state";
 import {
   deleteItemAction,
   flagFaultyAction,
+  markCurrentAction,
   markFixedAction,
+  markObsoleteAction,
   retireItemAction,
   updateItemAction,
 } from "@/lib/inventory/actions";
@@ -39,12 +41,14 @@ export type InventoryItemView = {
 const STATUS_STYLES: Record<InventoryStatus, string> = {
   ok: "border-line bg-surface-2 text-muted",
   faulty: "border-danger/35 bg-danger-soft text-danger",
+  obsolete: "border-warn-line bg-warn-soft text-warn",
   retired: "border-line bg-surface text-muted/60",
 };
 
 const STATUS_LABELS: Record<InventoryStatus, string> = {
   ok: "Working",
   faulty: "Needs fixing",
+  obsolete: "Obsolete",
   retired: "Retired",
 };
 
@@ -163,9 +167,15 @@ export function ItemRow({
                 className="sm:px-5"
               />
             </form>
-          ) : item.status === "ok" ? (
+          ) : item.status === "ok" || item.status === "obsolete" ? (
             <form action={flagAction} className="space-y-2">
               <input type="hidden" name="itemId" value={item.id} />
+              {item.status === "obsolete" ? (
+                <p className="text-[12.5px] leading-relaxed text-warn">
+                  Marked obsolete: it still works but is due for replacement. Flag a
+                  fault below if it has actually broken.
+                </p>
+              ) : null}
               <label
                 htmlFor={`faultNote-${item.id}`}
                 className="block text-[9.5px] font-medium uppercase tracking-[0.16em] text-muted"
@@ -252,6 +262,21 @@ export function ItemRow({
 
           {isAdmin ? (
             <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
+              {item.status === "obsolete" || item.status === "retired" ? (
+                <form action={markCurrentAction}>
+                  <input type="hidden" name="itemId" value={item.id} />
+                  <Button type="submit" size="sm" variant="secondary">
+                    Mark as current
+                  </Button>
+                </form>
+              ) : (
+                <form action={markObsoleteAction}>
+                  <input type="hidden" name="itemId" value={item.id} />
+                  <Button type="submit" size="sm" variant="secondary">
+                    Mark obsolete
+                  </Button>
+                </form>
+              )}
               {item.status !== "retired" ? (
                 <form action={retireItemAction}>
                   <input type="hidden" name="itemId" value={item.id} />
@@ -278,7 +303,8 @@ export function ItemRow({
                 </Button>
               </form>
               <span className="text-[12px] text-muted">
-                Retiring keeps the history. Deleting does not.
+                Obsolete still counts as in service. Retiring takes it out of use but
+                keeps the record. Deleting keeps nothing.
               </span>
             </div>
           ) : null}

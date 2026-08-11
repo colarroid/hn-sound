@@ -199,6 +199,42 @@ export async function markFixedAction(
   return { ok: true, message: "Marked as working again." };
 }
 
+/**
+ * Obsolescence is a judgement about replacing kit rather than repairing it, so it
+ * is the admin's call. The guard trigger enforces the same rule in the database.
+ */
+export async function markObsoleteAction(formData: FormData) {
+  await requireRole("admin");
+
+  const id = formData.get("itemId")?.toString();
+  if (!id) return;
+
+  const supabase = await createClient();
+  await supabase
+    .from("inventory_items")
+    .update({ status: "obsolete", fault_note: null, flagged_by: null, flagged_at: null })
+    .eq("id", id);
+
+  revalidatePath("/inventory");
+  revalidatePath("/inventory/needs-fixing");
+  revalidatePath("/", "layout");
+}
+
+/** Brings an obsolete or retired item back into normal service. */
+export async function markCurrentAction(formData: FormData) {
+  await requireRole("admin");
+
+  const id = formData.get("itemId")?.toString();
+  if (!id) return;
+
+  const supabase = await createClient();
+  await supabase.from("inventory_items").update({ status: "ok" }).eq("id", id);
+
+  revalidatePath("/inventory");
+  revalidatePath("/inventory/needs-fixing");
+  revalidatePath("/", "layout");
+}
+
 export async function retireItemAction(formData: FormData) {
   await requireRole("admin");
 
