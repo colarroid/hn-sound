@@ -8,6 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
 import {
+  COMING_UP_DAYS,
   daysAwayLabel,
   upcomingBirthdays,
   type BirthdayPerson,
@@ -51,9 +52,11 @@ export default async function DashboardPage() {
     .select("id, first_name, last_name, position, date_of_birth")
     .eq("approval_status", "approved");
 
+  // Only what is genuinely imminent. A birthday four months out on the landing
+  // screen is noise, so the full year lives on /birthdays instead.
   const nextBirthdays = upcomingBirthdays(
     (birthdayRows ?? []) as BirthdayPerson[],
-  ).slice(0, 3);
+  ).filter((person) => person.daysAway < COMING_UP_DAYS);
 
   return (
     <div className="space-y-7">
@@ -98,9 +101,7 @@ export default async function DashboardPage() {
                 >
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-ink">{person.name}</p>
-                    <p className="truncate text-[11px] text-muted">
-                      {person.dayLabel} · turning {person.turningAge}
-                    </p>
+                    <p className="truncate text-[11px] text-muted">{person.dayLabel}</p>
                   </div>
                   <span
                     className={

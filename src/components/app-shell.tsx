@@ -152,13 +152,17 @@ export function AppShell({
           "shrink-0 overflow-hidden border-line bg-surface",
           "transition-[max-height,opacity] duration-300 ease-out lg:transition-none",
           menuOpen ? "max-h-[70vh] border-b opacity-100" : "max-h-0 opacity-0",
-          "lg:flex lg:max-h-none lg:w-64 lg:flex-col lg:border-r lg:opacity-100",
+          // On desktop the rail is exactly the viewport tall and stays put, so the
+          // member card sits at the bottom of the screen rather than at the bottom
+          // of a long page.
+          "lg:sticky lg:top-0 lg:flex lg:h-screen lg:max-h-none lg:w-64",
+          "lg:flex-col lg:overflow-y-auto lg:border-r lg:opacity-100",
         )}
       >
         <div className="hidden px-4 py-6 lg:block">
           <Wordmark priority />
         </div>
-        <div className="flex-1 py-3 lg:py-0">{nav}</div>
+        <div className="flex-1 py-3 lg:min-h-0 lg:overflow-y-auto lg:py-0">{nav}</div>
         {userCard}
       </aside>
 

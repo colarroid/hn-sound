@@ -25,9 +25,10 @@ export type UpcomingBirthday = {
   dayLabel: string;
   /** 0 is today. */
   daysAway: number;
-  /** The age they are turning on that date. */
-  turningAge: number;
 };
+
+/** Anything inside this many days counts as "coming up" on the dashboard. */
+export const COMING_UP_DAYS = 14;
 
 /** Today's calendar date where the church is, as [year, month, day]. */
 function localToday(now: Date): [number, number, number] {
@@ -81,7 +82,6 @@ export function upcomingBirthdays(
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(person.date_of_birth);
     if (!match) continue;
 
-    const birthYear = Number(match[1]);
     const month = Number(match[2]);
     const day = Number(match[3]);
 
@@ -94,7 +94,6 @@ export function upcomingBirthdays(
       position: person.position,
       dayLabel: formatter.format(new Date(next.stamp)),
       daysAway: Math.round((next.stamp - todayUtc) / DAY_MS),
-      turningAge: next.year - birthYear,
     });
   }
 

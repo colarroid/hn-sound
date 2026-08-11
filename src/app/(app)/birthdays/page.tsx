@@ -33,12 +33,9 @@ function Row({ person }: { person: UpcomingBirthday }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-6">
-        <div className="text-right">
-          <p className={cn("text-[13px]", today ? "text-accent-text" : "text-ink")}>
-            {person.dayLabel}
-          </p>
-          <p className="text-[11px] text-muted">turning {person.turningAge}</p>
-        </div>
+        <p className={cn("text-right text-[13px]", today ? "text-accent-text" : "text-ink")}>
+          {person.dayLabel}
+        </p>
         <span
           className={cn(
             "min-w-24 border px-2 py-[3px] text-center text-[10px] font-medium uppercase tracking-[0.11em]",
@@ -105,7 +102,7 @@ export default async function BirthdaysPage() {
             Upcoming birthdays
           </h1>
           <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
-            Everyone in date order, starting with whoever is next. Driven by the date
+              Everyone in date order, starting with whoever is next. Driven by the date
             of birth each member gave at signup.
           </p>
         </div>
