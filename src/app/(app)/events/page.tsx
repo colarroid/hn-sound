@@ -6,7 +6,12 @@ import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
 import { upcomingBirthdays, type BirthdayPerson } from "@/lib/birthdays";
 import type { EventRow } from "@/lib/database.types";
-import { AGENDA_DAYS, daysAwayLabel } from "@/lib/dates";
+import {
+  AGENDA_DAYS,
+  currentMonthLabel,
+  daysAwayLabel,
+  endOfLocalMonthUtc,
+} from "@/lib/dates";
 import { buildAgenda, formatEventTime, formatSchedule, type AgendaItem } from "@/lib/events/schedule";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -80,7 +85,11 @@ export default async function EventsPage() {
   const soon = agenda.filter((item) => item.daysAway <= 7);
   const later = agenda.filter((item) => item.daysAway > 7);
 
-  const nextBirthdays = birthdays.slice(0, 6);
+  // This calendar month only, compared by date rather than by month name so a
+  // birthday that has already passed this month is not counted from next year.
+  const monthEnd = endOfLocalMonthUtc();
+  const monthLabel = currentMonthLabel();
+  const monthBirthdays = birthdays.filter((person) => person.stamp <= monthEnd);
 
   const repeating = events.filter((event) => event.recurrence === "weekly");
 
@@ -160,22 +169,30 @@ export default async function EventsPage() {
           </Card>
         ) : null}
 
-        {nextBirthdays.length > 0 ? (
-          <Card>
-            <CardHeader
-              title="Upcoming birthdays"
-              description="Whoever is next, in date order."
-              action={
-                <Link
-                  href="/birthdays"
-                  className="text-[12px] text-muted transition-colors duration-200 hover:text-ink"
-                >
-                  See all
-                </Link>
-              }
-            />
+        <Card>
+          <CardHeader
+            title={`Birthdays in ${monthLabel}`}
+            description={
+              monthBirthdays.length === 0
+                ? undefined
+                : "Still to come this month, in date order."
+            }
+            action={
+              <Link
+                href="/birthdays"
+                className="text-[12px] text-muted transition-colors duration-200 hover:text-ink"
+              >
+                See the year
+              </Link>
+            }
+          />
+          {monthBirthdays.length === 0 ? (
+            <p className="px-5 py-8 text-center text-[13px] text-muted">
+              No birthdays left in {monthLabel}.
+            </p>
+          ) : (
             <ul className="divide-y divide-line">
-              {nextBirthdays.map((person) => {
+              {monthBirthdays.map((person) => {
                 const today = person.daysAway === 0;
                 return (
                   <li
@@ -217,8 +234,8 @@ export default async function EventsPage() {
                 );
               })}
             </ul>
-          </Card>
-        ) : null}
+          )}
+        </Card>
 
         {repeating.length > 0 ? (
           <Card>

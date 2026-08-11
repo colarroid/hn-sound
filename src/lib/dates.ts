@@ -34,6 +34,26 @@ export function localTodayUtc(now = new Date()) {
   return Date.UTC(year, month - 1, day);
 }
 
+/**
+ * Midnight on the last day of the current local month, as a UTC timestamp.
+ *
+ * Used to answer "is this in the current month" by date rather than by month name.
+ * A 5 August birthday seen on 11 August next occurs in August of NEXT year, so
+ * matching on the month name alone would wrongly call it this month's.
+ */
+export function endOfLocalMonthUtc(now = new Date()) {
+  const [year, month] = localToday(now);
+  // Day 0 of the following month is the last day of this one.
+  return Date.UTC(year, month, 0);
+}
+
+/** "August", in the church's timezone. */
+export function currentMonthLabel(now = new Date()) {
+  return new Intl.DateTimeFormat("en-GB", { month: "long", timeZone: TIMEZONE }).format(
+    now,
+  );
+}
+
 export function formatDay(stamp: number) {
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",

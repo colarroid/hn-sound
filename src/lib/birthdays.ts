@@ -16,6 +16,8 @@ export type UpcomingBirthday = {
   dayLabel: string;
   /** 0 is today. */
   daysAway: number;
+  /** UTC midnight of the next occurrence, for comparing against month ends. */
+  stamp: number;
 };
 
 function isLeapYear(year: number) {
@@ -60,6 +62,7 @@ export function upcomingBirthdays(
       position: person.position,
       dayLabel: formatDay(stamp),
       daysAway: Math.round((stamp - todayUtc) / DAY_MS),
+      stamp,
     });
   }
 

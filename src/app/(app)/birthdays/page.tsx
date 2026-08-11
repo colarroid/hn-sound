@@ -13,7 +13,7 @@ import { daysAwayLabel } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Upcoming birthdays" };
+export const metadata: Metadata = { title: "All birthdays" };
 
 function Row({ person }: { person: UpcomingBirthday }) {
   const today = person.daysAway === 0;
@@ -99,7 +99,7 @@ export default async function BirthdaysPage() {
             The year ahead
           </p>
           <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.02em]">
-            Upcoming birthdays
+            All birthdays
           </h1>
           <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
               Everyone in date order, starting with whoever is next. Driven by the date
