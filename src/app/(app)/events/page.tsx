@@ -26,9 +26,9 @@ function AgendaRow({ item }: { item: AgendaItem }) {
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <p className="truncate text-sm font-medium text-ink">{item.title}</p>
-          {item.kind === "birthday" ? (
+          {item.repeatLabel ? (
             <span className="shrink-0 border border-line bg-surface-2 px-1.5 py-[2px] text-[10px] font-medium uppercase tracking-[0.1em] text-muted">
-              Birthday
+              {item.repeatLabel}
             </span>
           ) : null}
         </div>
@@ -72,9 +72,12 @@ export default async function EventsPage() {
   const events = (eventsResult.data ?? []) as EventRow[];
   const birthdays = upcomingBirthdays((peopleResult.data ?? []) as BirthdayPerson[]);
 
-  const agenda = buildAgenda({ events, birthdays, days: AGENDA_DAYS });
+  // Birthdays get their own card below rather than inline rows, so they are not
+  // listed twice on one screen.
+  const agenda = buildAgenda({ events, days: AGENDA_DAYS });
   const soon = agenda.filter((item) => item.daysAway <= 7);
   const later = agenda.filter((item) => item.daysAway > 7);
+  const nextBirthdays = birthdays.slice(0, 6);
 
   const repeating = events.filter((event) => event.recurrence === "weekly");
 
@@ -87,8 +90,9 @@ export default async function EventsPage() {
           </p>
           <h1 className="mt-3 text-[26px] font-semibold tracking-[-0.02em]">Events</h1>
           <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
-            Services, rehearsals, and anything else in the calendar, with birthdays
-            folded in. Looking {AGENDA_DAYS} days ahead.
+            Services, rehearsals, and anything else in the calendar, looking{" "}
+            {AGENDA_DAYS} days ahead. A repeating event is listed once a week rather
+            than once a day.
           </p>
         </div>
 
@@ -146,6 +150,66 @@ export default async function EventsPage() {
               {later.map((item) => (
                 <AgendaRow key={item.key} item={item} />
               ))}
+            </ul>
+          </Card>
+        ) : null}
+
+        {nextBirthdays.length > 0 ? (
+          <Card>
+            <CardHeader
+              title="Upcoming birthdays"
+              description="Whoever is next, in date order."
+              action={
+                <Link
+                  href="/birthdays"
+                  className="text-[12px] text-muted transition-colors duration-200 hover:text-ink"
+                >
+                  See all
+                </Link>
+              }
+            />
+            <ul className="divide-y divide-line">
+              {nextBirthdays.map((person) => {
+                const today = person.daysAway === 0;
+                return (
+                  <li
+                    key={person.id}
+                    className={cn(
+                      "flex flex-wrap items-center justify-between gap-4 px-5 py-4 transition-colors duration-200",
+                      today ? "bg-accent-soft/40" : "hover:bg-surface-2/40",
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-ink">
+                        {person.name}
+                      </p>
+                      <p className="mt-1 truncate text-[12.5px] text-muted">
+                        {person.position ?? "No position set"}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-6">
+                      <p
+                        className={cn(
+                          "text-right text-[13px]",
+                          today ? "text-accent-text" : "text-ink",
+                        )}
+                      >
+                        {person.dayLabel}
+                      </p>
+                      <span
+                        className={cn(
+                          "min-w-24 border px-2 py-[3px] text-center text-[10px] font-medium uppercase tracking-[0.11em]",
+                          today
+                            ? "border-accent-line bg-accent-soft text-accent-text"
+                            : "border-line bg-surface-2 text-muted",
+                        )}
+                      >
+                        {daysAwayLabel(person.daysAway)}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </Card>
         ) : null}

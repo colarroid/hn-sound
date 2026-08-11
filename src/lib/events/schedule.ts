@@ -87,10 +87,21 @@ export type AgendaItem = {
   title: string;
   detail: string | null;
   timeLabel: string | null;
+  /** "Monday to Friday" for a repeating event, null for a one-off. */
+  repeatLabel: string | null;
   dayLabel: string;
   /** 0 is today. */
   daysAway: number;
 };
+
+/**
+ * Monday on or before the given day, used to bucket occurrences into weeks so a
+ * repeating event can be shown once per week instead of once per day.
+ */
+function weekStart(stamp: number) {
+  const mondayOffset = (new Date(stamp).getUTCDay() + 6) % 7;
+  return stamp - mondayOffset * DAY_MS;
+}
 
 /**
  * Expands events into dated occurrences and merges the birthdays in, because to
@@ -113,6 +124,14 @@ export function buildAgenda({
   const todayUtc = localTodayUtc(now);
   const out: AgendaItem[] = [];
 
+  /*
+    A repeating event appears once per week, not once per day. Monday to Friday as
+    five near-identical rows buried everything else in the diary, and the weekday
+    label already says which days it lands on. The date shown is its first
+    occurrence in that week.
+  */
+  const seenWeeks = new Set<string>();
+
   for (let offset = 0; offset <= days; offset += 1) {
     const stamp = todayUtc + offset * DAY_MS;
     const weekday = new Date(stamp).getUTCDay();
@@ -120,13 +139,18 @@ export function buildAgenda({
     for (const event of events) {
       const from = parseDate(event.active_from);
       const until = parseDate(event.active_until);
+      const repeating = event.recurrence === "weekly";
 
-      if (event.recurrence === "once") {
+      if (!repeating) {
         if (parseDate(event.starts_on) !== stamp) continue;
       } else {
         if (!event.weekdays?.includes(weekday)) continue;
         if (from !== null && stamp < from) continue;
         if (until !== null && stamp > until) continue;
+
+        const bucket = `${event.id}:${weekStart(stamp)}`;
+        if (seenWeeks.has(bucket)) continue;
+        seenWeeks.add(bucket);
       }
 
       out.push({
@@ -135,6 +159,7 @@ export function buildAgenda({
         title: event.title,
         detail: event.location,
         timeLabel: formatEventTime(event),
+        repeatLabel: repeating ? formatWeekdays(event.weekdays) : null,
         dayLabel: formatDay(stamp),
         daysAway: offset,
       });
@@ -149,6 +174,7 @@ export function buildAgenda({
       title: `${birthday.name}'s birthday`,
       detail: birthday.position,
       timeLabel: null,
+      repeatLabel: null,
       dayLabel: birthday.dayLabel,
       daysAway: birthday.daysAway,
     });

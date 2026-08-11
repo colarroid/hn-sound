@@ -108,7 +108,7 @@ export default async function DashboardPage() {
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-ink">{item.title}</p>
                     <p className="truncate text-[11px] text-muted">
-                      {[item.dayLabel, item.timeLabel, item.detail]
+                      {[item.repeatLabel ?? item.dayLabel, item.timeLabel, item.detail]
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
