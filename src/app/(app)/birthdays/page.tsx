@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireMember } from "@/lib/auth/session";
 import {
   upcomingBirthdays,
@@ -67,11 +68,11 @@ function Section({
   return (
     <Card accentTop={accentTop}>
       <CardHeader title={title} description={description} />
-      <ul className="divide-y divide-line">
+      <RowScroller minWidth="min-w-[32rem]">
         {people.map((person) => (
           <Row key={person.id} person={person} />
         ))}
-      </ul>
+      </RowScroller>
     </Card>
   );
 }

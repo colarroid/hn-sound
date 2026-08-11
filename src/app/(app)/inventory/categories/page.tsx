@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireRole } from "@/lib/auth/session";
 import { loadInventory } from "@/lib/inventory/data";
 import {
@@ -72,11 +73,11 @@ export default async function InventoryCategoriesPage() {
               description="Add the first one and members will be able to file items under it."
             />
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[34rem]">
               {rows.map((category) => (
                 <CategoryRow key={category.id} category={category} />
               ))}
-            </ul>
+            </RowScroller>
           )}
         </Card>
       </div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
+import { RowScroller } from "@/components/ui/row-scroller";
 import type { CategoryOption } from "./item-fields";
 import { ItemRow, type InventoryItemView } from "./item-row";
 
@@ -118,7 +119,7 @@ export function InventoryList({
             title={group.name}
             description={`${group.items.length} ${group.items.length === 1 ? "item" : "items"}`}
           />
-          <ul className="divide-y divide-line">
+          <RowScroller minWidth="min-w-[40rem]">
             {group.items.map((item) => (
               <ItemRow
                 key={item.id}
@@ -128,7 +129,7 @@ export function InventoryList({
                 categories={categories}
               />
             ))}
-          </ul>
+          </RowScroller>
         </Card>
       ))}
     </div>

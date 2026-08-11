@@ -107,8 +107,10 @@ export function ItemRow({
         item.status === "retired" ? "opacity-60" : "hover:bg-surface-2/40",
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
+      {/* No flex-wrap: the row keeps real column widths and the list scrolls
+          sideways rather than crushing a long item name into an ellipsis. */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-[20rem] flex-1">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <p className="truncate text-sm font-medium text-ink">{item.name}</p>
             {item.label ? (

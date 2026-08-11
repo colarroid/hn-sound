@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { Input } from "@/components/ui/field";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { MemberRow, type DirectoryMember } from "./member-row";
 
 const DATALIST_ID = "member-positions";
@@ -66,7 +67,7 @@ export function Directory({
             }
           />
         ) : (
-          <ul className="divide-y divide-line">
+          <RowScroller minWidth="min-w-[54rem]">
             {filtered.map((member) => (
               <MemberRow
                 key={member.id}
@@ -75,7 +76,7 @@ export function Directory({
                 datalistId={DATALIST_ID}
               />
             ))}
-          </ul>
+          </RowScroller>
         )}
       </Card>
     </>

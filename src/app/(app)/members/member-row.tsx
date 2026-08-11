@@ -74,8 +74,10 @@ export function MemberRow({
 
   return (
     <li className="px-5 py-4 transition-colors duration-200 hover:bg-surface-2/40">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+      {/* No flex-wrap: these blocks have real minimum widths and the list scrolls
+          sideways rather than letting them collapse into ellipses. */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-[13.5rem] flex-1 items-start gap-3">
           <span className="flex size-9 shrink-0 items-center justify-center border border-line-strong bg-surface-2 text-[11px] font-semibold tracking-wide text-ink-dim">
             {member.initials}
           </span>
@@ -92,7 +94,7 @@ export function MemberRow({
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:max-w-md">
+        <div className="grid min-w-[26rem] flex-1 grid-cols-2 gap-x-6 gap-y-3 sm:max-w-md">
           <ContactLink label="Phone" href={`tel:${member.phone ?? ""}`}>
             {member.phone ?? "Not set"}
           </ContactLink>

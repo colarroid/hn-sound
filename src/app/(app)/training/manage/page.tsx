@@ -4,6 +4,7 @@ import Link from "next/link";
 import { lessonLabel } from "@/components/training/material-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireRole } from "@/lib/auth/session";
 import type { TrainingMaterialRow } from "@/lib/database.types";
 import { fileTypeLabel, formatBytes } from "@/lib/training/constants";
@@ -85,7 +86,7 @@ export default async function ManageTrainingPage() {
               }
             />
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[42rem]">
               {materials.map((material) => {
                 const granted = grantCounts.get(material.id) ?? 0;
                 return (
@@ -145,7 +146,7 @@ export default async function ManageTrainingPage() {
                   </li>
                 );
               })}
-            </ul>
+            </RowScroller>
           )}
         </Card>
       </div>

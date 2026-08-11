@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireMember } from "@/lib/auth/session";
 import { loadInventory } from "@/lib/inventory/data";
 import { toItemViews } from "@/lib/inventory/view";
@@ -65,7 +66,7 @@ export default async function NeedsFixingPage() {
               description="Anything a member flags as faulty lands here, along with a note on what went wrong."
             />
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[40rem]">
               {views.map((item) => (
                 <ItemRow
                   key={item.id}
@@ -79,7 +80,7 @@ export default async function NeedsFixingPage() {
                   }))}
                 />
               ))}
-            </ul>
+            </RowScroller>
           )}
         </Card>
       </div>

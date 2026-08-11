@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireRole } from "@/lib/auth/session";
 import type { ProfileRow } from "@/lib/database.types";
 import { positionOptions } from "@/lib/positions";
@@ -94,7 +95,7 @@ export default async function ApprovalsPage() {
               description="New signups will appear here as soon as they confirm their email address."
             />
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[46rem]">
               {pending.map((row) => (
                 <ApprovalRow
                   key={row.id}
@@ -103,7 +104,7 @@ export default async function ApprovalsPage() {
                   datalistId={POSITION_DATALIST_ID}
                 />
               ))}
-            </ul>
+            </RowScroller>
           )}
         </Card>
       </div>
@@ -115,7 +116,7 @@ export default async function ApprovalsPage() {
               title="Declined"
               description="They can still sign in, but they only ever see the declined screen. Approving reverses it."
             />
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[46rem]">
               {declined.map((row) => (
                 <ApprovalRow
                   key={row.id}
@@ -125,7 +126,7 @@ export default async function ApprovalsPage() {
                   declined
                 />
               ))}
-            </ul>
+            </RowScroller>
           </Card>
         </div>
       ) : null}

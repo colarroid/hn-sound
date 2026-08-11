@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
+import { RowScroller } from "@/components/ui/row-scroller";
 import { requireMember } from "@/lib/auth/session";
 import { upcomingBirthdays, type BirthdayPerson } from "@/lib/birthdays";
 import type { EventRow } from "@/lib/database.types";
@@ -142,11 +143,11 @@ export default async function EventsPage() {
               }
             />
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[36rem]">
               {soon.map((item) => (
                 <AgendaRow key={item.key} item={item} />
               ))}
-            </ul>
+            </RowScroller>
           )}
         </Card>
 
@@ -156,11 +157,11 @@ export default async function EventsPage() {
               title="Coming up"
               description={`The rest of the next ${AGENDA_DAYS} days. A repeating event is listed once, on its next date.`}
             />
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[36rem]">
               {later.map((item) => (
                 <AgendaRow key={item.key} item={item} />
               ))}
-            </ul>
+            </RowScroller>
           </Card>
         ) : null}
 
@@ -186,7 +187,7 @@ export default async function EventsPage() {
               Nobody has a birthday in the next four weeks.
             </p>
           ) : (
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[36rem]">
               {soonBirthdays.map((person) => {
                 const today = person.daysAway === 0;
                 return (
@@ -228,7 +229,7 @@ export default async function EventsPage() {
                   </li>
                 );
               })}
-            </ul>
+            </RowScroller>
           )}
         </Card>
 
@@ -238,7 +239,7 @@ export default async function EventsPage() {
               title="Weekly schedule"
               description="The standing commitments, whatever the date."
             />
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[36rem]">
               {repeating.map((event) => (
                 <li
                   key={event.id}
@@ -261,7 +262,7 @@ export default async function EventsPage() {
                   ) : null}
                 </li>
               ))}
-            </ul>
+            </RowScroller>
           </Card>
         ) : null}
 
@@ -271,7 +272,7 @@ export default async function EventsPage() {
               title="Every event"
               description="Including one-offs that have already passed."
             />
-            <ul className="divide-y divide-line">
+            <RowScroller minWidth="min-w-[36rem]">
               {events.map((event) => (
                 <li
                   key={event.id}
@@ -291,7 +292,7 @@ export default async function EventsPage() {
                   </Link>
                 </li>
               ))}
-            </ul>
+            </RowScroller>
           </Card>
         ) : null}
       </div>
