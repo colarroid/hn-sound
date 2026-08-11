@@ -5,7 +5,8 @@ import { useActionState } from "react";
 import { updatePasswordAction } from "@/lib/auth/actions";
 import { emptyFormState } from "@/lib/form-state";
 import { Alert } from "@/components/ui/alert";
-import { Field, Input } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 export function ResetPasswordForm() {
@@ -22,10 +23,9 @@ export function ResetPasswordForm() {
         error={errors.password}
         hint="At least 8 characters, with a letter and a number."
       >
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           invalid={Boolean(errors.password)}
           required
@@ -33,10 +33,9 @@ export function ResetPasswordForm() {
       </Field>
 
       <Field label="Confirm new password" htmlFor="confirmPassword" error={errors.confirmPassword}>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           invalid={Boolean(errors.confirmPassword)}
           required

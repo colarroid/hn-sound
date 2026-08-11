@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, EmptyState } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
 import {
-  daysAwayLabel,
   upcomingBirthdays,
   type BirthdayPerson,
   type UpcomingBirthday,
 } from "@/lib/birthdays";
+import { daysAwayLabel } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 

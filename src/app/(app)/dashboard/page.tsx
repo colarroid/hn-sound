@@ -7,12 +7,10 @@ import { RoleBadge } from "@/components/role-badge";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader } from "@/components/ui/card";
 import { requireMember } from "@/lib/auth/session";
-import {
-  COMING_UP_DAYS,
-  daysAwayLabel,
-  upcomingBirthdays,
-  type BirthdayPerson,
-} from "@/lib/birthdays";
+import { upcomingBirthdays, type BirthdayPerson } from "@/lib/birthdays";
+import type { EventRow } from "@/lib/database.types";
+import { COMING_UP_DAYS, daysAwayLabel } from "@/lib/dates";
+import { buildAgenda } from "@/lib/events/schedule";
 import { CHURCH_NAME } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/server";
 import { fullName } from "@/lib/utils";
@@ -47,16 +45,23 @@ export default async function DashboardPage() {
   // A birthdays page nobody opens is a birthdays page nobody uses, so the next
   // few ride along on the landing screen.
   const supabase = await createClient();
-  const { data: birthdayRows } = await supabase
-    .from("profiles")
-    .select("id, first_name, last_name, position, date_of_birth")
-    .eq("approval_status", "approved");
+  const [{ data: birthdayRows }, { data: eventRows }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, first_name, last_name, position, date_of_birth")
+      .eq("approval_status", "approved"),
+    supabase.from("events").select("*"),
+  ]);
 
-  // Only what is genuinely imminent. A birthday four months out on the landing
-  // screen is noise, so the full year lives on /birthdays instead.
-  const nextBirthdays = upcomingBirthdays(
-    (birthdayRows ?? []) as BirthdayPerson[],
-  ).filter((person) => person.daysAway < COMING_UP_DAYS);
+  const events = (eventRows ?? []) as EventRow[];
+
+  // Only what is genuinely imminent. Anything further out is noise on a landing
+  // screen and lives on /events instead.
+  const comingUp = buildAgenda({
+    events,
+    birthdays: upcomingBirthdays((birthdayRows ?? []) as BirthdayPerson[]),
+    days: COMING_UP_DAYS - 1,
+  });
 
   return (
     <div className="space-y-7">
@@ -79,14 +84,15 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
-      {nextBirthdays.length > 0 ? (
+      {comingUp.length > 0 ? (
         <div className="anim-rise d-2">
           <Card>
             <CardHeader
               title="Coming up"
+              description="The next two weeks."
               action={
                 <Link
-                  href="/birthdays"
+                  href="/events"
                   className="text-[12px] text-muted transition-colors duration-200 hover:text-ink"
                 >
                   See all
@@ -94,23 +100,27 @@ export default async function DashboardPage() {
               }
             />
             <ul className="divide-y divide-line">
-              {nextBirthdays.map((person) => (
+              {comingUp.map((item) => (
                 <li
-                  key={person.id}
+                  key={item.key}
                   className="flex items-center justify-between gap-4 px-5 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] text-ink">{person.name}</p>
-                    <p className="truncate text-[11px] text-muted">{person.dayLabel}</p>
+                    <p className="truncate text-[13px] text-ink">{item.title}</p>
+                    <p className="truncate text-[11px] text-muted">
+                      {[item.dayLabel, item.timeLabel, item.detail]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
                   </div>
                   <span
                     className={
-                      person.daysAway === 0
-                        ? "text-[11px] uppercase tracking-[0.11em] text-accent-text"
-                        : "text-[11px] uppercase tracking-[0.11em] text-muted"
+                      item.daysAway === 0
+                        ? "shrink-0 text-[11px] uppercase tracking-[0.11em] text-accent-text"
+                        : "shrink-0 text-[11px] uppercase tracking-[0.11em] text-muted"
                     }
                   >
-                    {daysAwayLabel(person.daysAway)}
+                    {daysAwayLabel(item.daysAway)}
                   </span>
                 </li>
               ))}

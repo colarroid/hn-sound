@@ -7,6 +7,7 @@ import { signUpAction } from "@/lib/auth/actions";
 import { emptyFormState } from "@/lib/form-state";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 export function SignUpForm() {
@@ -98,10 +99,9 @@ export function SignUpForm() {
         error={errors.password}
         hint="At least 8 characters, with a letter and a number."
       >
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="new-password"
           invalid={Boolean(errors.password)}
           required
@@ -109,10 +109,9 @@ export function SignUpForm() {
       </Field>
 
       <Field label="Confirm password" htmlFor="confirmPassword" error={errors.confirmPassword}>
-        <Input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
           autoComplete="new-password"
           invalid={Boolean(errors.confirmPassword)}
           required

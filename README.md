@@ -174,6 +174,27 @@ Keep `NEXT_PUBLIC_SITE_URL` pointing at `http://localhost:3100` in your local
 `.env.local`. The production host belongs in Vercel's environment variables, not
 in the local file.
 
+## Events
+
+Admin-created, and either **one-off** with a single date, or **weekly** with a set
+of weekdays. "Monday to Friday" and "just Mondays" are the same kind of event with
+a different set, so there is no pattern language to learn or to parse.
+
+**Occurrences are computed, never stored.** A weekly event is one row and the dates
+are worked out when the list is drawn. Storing future occurrences would mean
+rewriting rows whenever a schedule changed, and picking an arbitrary horizon.
+Nothing can drift this way. The edit screen shows the next six dates a rule
+produces, so a wrong weekday is obvious before anyone turns up on the wrong evening.
+
+Weekday sets are rendered the way a person would say them: `Mondays`,
+`Monday to Friday`, `Weekends`, `Every day`, `Mondays and Thursdays`. A consecutive
+run becomes a range, anything else becomes a list, and the input order does not
+matter.
+
+Birthdays are folded into the same agenda, because to whoever is reading it a
+birthday is just another thing happening that week. The full year still lives at
+`/birthdays`, linked from Events but no longer in the nav.
+
 ## Members and birthdays
 
 `/members` is one list serving both purposes. Every approved member sees names,

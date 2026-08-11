@@ -7,6 +7,7 @@ const PATHS: Record<IconName, string> = {
   members:
     "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 19c0-2.8 2.7-4.5 6-4.5s6 1.7 6 4.5M15 14.6c2.6.3 4.8 1.9 4.8 4.4",
   cake: "M12 5V3m0 2a2 2 0 0 0-2 2v1h4V7a2 2 0 0 0-2-2ZM5 12h14v7H5v-7Zm0 0a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2",
+  events: "M4 6h16v14H4V6Zm0 4h16M8 3v4m8-4v4M9 14h2m4 0h2",
   inventory: "M4 8l8-4 8 4v8l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v8",
   training: "M4 6h16v11H4V6Zm5 15h6M12 17v4",
   contributions: "M12 3v18M8 7h6a3 3 0 0 1 0 6H8m0 0h7a3 3 0 0 1 0 6H8",

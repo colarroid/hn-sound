@@ -7,6 +7,7 @@ import { signInAction } from "@/lib/auth/actions";
 import { emptyFormState } from "@/lib/form-state";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 export function LoginForm({ next }: { next?: string }) {
@@ -34,10 +35,9 @@ export function LoginForm({ next }: { next?: string }) {
       </Field>
 
       <Field label="Password" htmlFor="password" error={errors.password}>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           autoComplete="current-password"
           invalid={Boolean(errors.password)}
           required

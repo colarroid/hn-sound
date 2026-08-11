@@ -91,6 +91,27 @@ export type InventoryItemRow = {
   updated_at: string;
 };
 
+export type EventRecurrence = "once" | "weekly";
+
+export type EventRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  recurrence: EventRecurrence;
+  /** Set when recurrence is 'once'. */
+  starts_on: string | null;
+  /** Set when recurrence is 'weekly'. 0 is Sunday, matching getUTCDay. */
+  weekdays: number[] | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  active_from: string | null;
+  active_until: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -172,6 +193,20 @@ export type Database = {
           {
             foreignKeyName: "inventory_items_added_by_fkey";
             columns: ["added_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      events: {
+        Row: EventRow;
+        Insert: Partial<EventRow> & { title: string };
+        Update: Partial<EventRow>;
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey";
+            columns: ["created_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
