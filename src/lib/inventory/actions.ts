@@ -24,6 +24,7 @@ const optionalText = (max: number) =>
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, "At least 2 characters.").max(120),
+  label: optionalText(60),
   categoryId: z
     .string()
     .trim()
@@ -48,6 +49,7 @@ const itemSchema = z.object({
 function readItem(formData: FormData) {
   return {
     name: formData.get("name")?.toString() ?? "",
+    label: formData.get("label")?.toString() ?? "",
     categoryId: formData.get("categoryId")?.toString() ?? "",
     quantity: formData.get("quantity")?.toString() ?? "",
     serialNumber: formData.get("serialNumber")?.toString() ?? "",
@@ -80,6 +82,7 @@ export async function addItemAction(
   const supabase = await createClient();
   const { error } = await supabase.from("inventory_items").insert({
     name: parsed.data.name,
+    label: parsed.data.label,
     category_id: parsed.data.categoryId,
     quantity: parsed.data.quantity,
     serial_number: parsed.data.serialNumber,
@@ -119,6 +122,7 @@ export async function updateItemAction(
     .from("inventory_items")
     .update({
       name: parsed.data.name,
+      label: parsed.data.label,
       category_id: parsed.data.categoryId,
       quantity: parsed.data.quantity,
       serial_number: parsed.data.serialNumber,

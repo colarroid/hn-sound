@@ -41,6 +41,7 @@ export function toItemViews({
   return items.map((item) => ({
     id: item.id,
     name: item.name,
+    label: item.label,
     categoryId: item.category_id,
     categoryName:
       (item.category_id ? categoryNames.get(item.category_id) : null) ?? UNCATEGORISED,

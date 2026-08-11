@@ -30,6 +30,7 @@ export function InventoryList({
       if (!needle) return true;
       return [
         item.name,
+        item.label ?? "",
         item.categoryName,
         item.location ?? "",
         item.serialNumber ?? "",
@@ -73,7 +74,7 @@ export function InventoryList({
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search name, place, serial"
+                placeholder="Search name, Blue, place, serial"
                 aria-label="Search inventory"
                 className="h-9 text-[13px]"
               />

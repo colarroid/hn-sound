@@ -6,6 +6,7 @@ export type CategoryOption = { id: string; name: string };
 
 type Defaults = {
   name?: string;
+  label?: string | null;
   categoryId?: string | null;
   quantity?: number | string;
   serialNumber?: string | null;
@@ -42,6 +43,27 @@ export function ItemFields({
             invalid={Boolean(errors.name)}
             className={height}
             required
+          />
+        </Field>
+
+        <Field
+          label="Which one"
+          htmlFor="label"
+          error={errors.label}
+          hint={
+            compact
+              ? undefined
+              : "What tells this one apart from the others: Blue, Floor Tom, Stage Left."
+          }
+        >
+          <Input
+            id="label"
+            name="label"
+            defaultValue={defaults.label ?? ""}
+            placeholder="Blue"
+            maxLength={60}
+            invalid={Boolean(errors.label)}
+            className={height}
           />
         </Field>
 

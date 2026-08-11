@@ -23,6 +23,8 @@ import { ItemFields, type CategoryOption } from "./item-fields";
 export type InventoryItemView = {
   id: string;
   name: string;
+  /** The handle that tells this one apart: Blue, Floor Tom, Stage Left. */
+  label: string | null;
   categoryId: string | null;
   categoryName: string;
   quantity: number;
@@ -107,7 +109,14 @@ export function ItemRow({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-ink">{item.name}</p>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <p className="truncate text-sm font-medium text-ink">{item.name}</p>
+            {item.label ? (
+              <span className="shrink-0 border border-accent-line bg-accent-soft px-1.5 py-[2px] text-[10.5px] font-medium uppercase tracking-[0.1em] text-accent-text">
+                {item.label}
+              </span>
+            ) : null}
+          </div>
           {meta.length > 0 ? (
             <p className="mt-1 truncate text-[12.5px] text-muted">{meta.join(" · ")}</p>
           ) : null}
@@ -219,6 +228,7 @@ export function ItemRow({
                     compact
                     defaults={{
                       name: item.name,
+                      label: item.label,
                       categoryId: item.categoryId,
                       quantity: item.quantity,
                       serialNumber: item.serialNumber,

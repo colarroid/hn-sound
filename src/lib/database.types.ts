@@ -70,6 +70,11 @@ export type InventoryCategoryRow = {
 export type InventoryItemRow = {
   id: string;
   name: string;
+  /**
+   * Short handle that tells two otherwise identical items apart: Blue, Floor Tom,
+   * Stage Left. Not the serial number, which nobody reads off a cable mid-service.
+   */
+  label: string | null;
   category_id: string | null;
   quantity: number;
   serial_number: string | null;
