@@ -172,8 +172,9 @@ export function ItemRow({
               <input type="hidden" name="itemId" value={item.id} />
               {item.status === "obsolete" ? (
                 <p className="text-[12.5px] leading-relaxed text-warn">
-                  Marked obsolete: it still works but is due for replacement. Flag a
-                  fault below if it has actually broken.
+                  Marked obsolete: it still works but is due for replacement. If it
+                  has actually broken, flag it below and it moves to the needs-fixing
+                  list. An admin can mark it obsolete again afterwards.
                 </p>
               ) : null}
               <label
