@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { requireRole, requireVerifiedMember } from "@/lib/auth/session";
 import { POSITION_MAX_LENGTH } from "@/lib/positions";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const approveSchema = z.object({
@@ -79,6 +80,42 @@ export async function declineMemberAction(formData: FormData) {
     .eq("id", memberId);
 
   revalidatePath("/approvals");
+  revalidatePath("/", "layout");
+}
+
+/**
+ * Deletes a declined account outright, for a mistaken signup or somebody who was
+ * never going to be let in. Only ever a declined one: this is not a general purpose
+ * member delete, and refusing anything else keeps it that way.
+ *
+ * It has to go through the service role, because removing the auth user is not
+ * something row level security can express. The profile goes with it by cascade,
+ * their training grants with that, while anything they added to the inventory
+ * survives with its attribution nulled rather than disappearing.
+ *
+ * Irreversible, and it frees the email address, so they could sign up again.
+ */
+export async function removeDeclinedMemberAction(formData: FormData) {
+  const admin = await requireRole("admin");
+
+  const memberId = formData.get("memberId")?.toString();
+  if (!memberId || memberId === admin.user.id) return;
+
+  const supabase = await createClient();
+  const { data: target } = await supabase
+    .from("profiles")
+    .select("approval_status")
+    .eq("id", memberId)
+    .maybeSingle();
+
+  if (target?.approval_status !== "declined") return;
+
+  const service = createAdminClient();
+  const { error } = await service.auth.admin.deleteUser(memberId);
+  if (error) return;
+
+  revalidatePath("/approvals");
+  revalidatePath("/members");
   revalidatePath("/", "layout");
 }
 

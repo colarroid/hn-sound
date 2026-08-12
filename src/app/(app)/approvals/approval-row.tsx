@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
 
-import { approveMemberAction, declineMemberAction } from "@/lib/approvals/actions";
+import {
+  approveMemberAction,
+  declineMemberAction,
+  removeDeclinedMemberAction,
+} from "@/lib/approvals/actions";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/field";
 import { ASSIGNABLE_ROLES, POSITION_MAX_LENGTH } from "@/lib/positions";
@@ -153,6 +157,35 @@ export function ApprovalRow({
                 )}
               </div>
             </form>
+
+            {/* Separate form: a nested one is invalid, and removal must not be a
+                stray click away from the approve button. */}
+            {declined ? (
+              <form
+                action={removeDeclinedMemberAction}
+                className="flex flex-wrap items-center gap-3 border-t border-line pt-4"
+                onSubmit={(event) => {
+                  if (
+                    !window.confirm(
+                      `Remove ${member.name} completely? Their account and this record are deleted for good. They could sign up again with ${member.email}.`,
+                    )
+                  ) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <input type="hidden" name="memberId" value={member.id} />
+                <ActionButton
+                  label="Remove from the list"
+                  pendingLabel="Removing"
+                  variant="danger"
+                />
+                <span className="text-[12px] leading-relaxed text-muted">
+                  Deletes the account for good. Leave them declined instead if you
+                  might let them in later.
+                </span>
+              </form>
+            ) : null}
 
             {showReason ? (
               <form
