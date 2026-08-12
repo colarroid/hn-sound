@@ -1,20 +1,49 @@
 import type { IconName } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
-const PATHS: Record<IconName, string> = {
-  dashboard: "M4 13h6V4H4v9Zm10 7h6v-9h-6v9ZM4 20h6v-4H4v4Zm10-11h6V4h-6v5Z",
-  approvals: "M10 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-6.5 7.5c0-3 3-4.8 6.5-4.8M14.5 18l2 2 4.5-4.5",
-  members:
-    "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 19c0-2.8 2.7-4.5 6-4.5s6 1.7 6 4.5M15 14.6c2.6.3 4.8 1.9 4.8 4.4",
-  cake: "M12 5V3m0 2a2 2 0 0 0-2 2v1h4V7a2 2 0 0 0-2-2ZM5 12h14v7H5v-7Zm0 0a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2",
-  events: "M4 6h16v14H4V6Zm0 4h16M8 3v4m8-4v4M9 14h2m4 0h2",
-  inventory: "M4 8l8-4 8 4v8l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v8",
-  training: "M4 6h16v11H4V6Zm5 15h6M12 17v4",
-  contributions: "M12 3v18M8 7h6a3 3 0 0 1 0 6H8m0 0h7a3 3 0 0 1 0 6H8",
-  treasury: "M4 9h16v10H4V9Zm2-4h12l2 4H4l2-4Zm6 7v4",
-  settings:
+/*
+  Supplied artwork, drawn on a 24 grid with a 2 stroke. Several icons are more than
+  one path, so each entry is a list rather than a single d, and the whole set is
+  rendered at one weight instead of each icon carrying its own.
+
+  Rendered smaller than 24, so the stroke scales down with it: 2 on a 24 viewBox
+  shown at 18px reads as about 1.5px.
+*/
+const PATHS: Record<IconName, string[]> = {
+  dashboard: [
+    "M9 3H4C3.44772 3 3 3.44772 3 4V9C3 9.55228 3.44772 10 4 10H9C9.55228 10 10 9.55228 10 9V4C10 3.44772 9.55228 3 9 3Z",
+    "M20 3H15C14.4477 3 14 3.44772 14 4V9C14 9.55228 14.4477 10 15 10H20C20.5523 10 21 9.55228 21 9V4C21 3.44772 20.5523 3 20 3Z",
+    "M20 14H15C14.4477 14 14 14.4477 14 15V20C14 20.5523 14.4477 21 15 21H20C20.5523 21 21 20.5523 21 20V15C21 14.4477 20.5523 14 20 14Z",
+    "M9 14H4C3.44772 14 3 14.4477 3 15V20C3 20.5523 3.44772 21 4 21H9C9.55228 21 10 20.5523 10 20V15C10 14.4477 9.55228 14 9 14Z",
+  ],
+  members: [
+    "M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H6C4.93913 15 3.92172 15.4214 3.17157 16.1716C2.42143 16.9217 2 17.9391 2 19V21M16 3.12793C16.8578 3.3503 17.6174 3.85119 18.1597 4.55199C18.702 5.25279 18.9962 6.11382 18.9962 6.99993C18.9962 7.88604 18.702 8.74707 18.1597 9.44787C17.6174 10.1487 16.8578 10.6496 16 10.8719M22 20.9999V18.9999C21.9993 18.1136 21.7044 17.2527 21.1614 16.5522C20.6184 15.8517 19.8581 15.3515 19 15.1299M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z",
+  ],
+  events: [
+    "M8 2V6M16 2V6M3 10H21M10 16H14M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z",
+  ],
+  inventory: [
+    "M12 22V12M12 12L3.29004 7M12 12L20.71 7M7.5 4.27002L16.5 9.42002M11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999V7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299Z",
+  ],
+  training: [
+    "M2 20H22M5 4H19C20.1046 4 21 4.89543 21 6V14C21 15.1046 20.1046 16 19 16H5C3.89543 16 3 15.1046 3 14V6C3 4.89543 3.89543 4 5 4Z",
+  ],
+  approvals: [
+    "M19 11V17M19 17C17.8954 17 17 17.8954 17 19C17 20.1046 17.8954 21 19 21C20.1046 21 21 20.1046 21 19C21 17.8954 20.1046 17 19 17ZM19 13H21M2 21.0001C1.99989 19.5071 2.41758 18.0439 3.20581 16.7759C3.99404 15.5079 5.12136 14.4858 6.46025 13.8252C7.79915 13.1646 9.29618 12.8919 10.782 13.0378C12.2679 13.1838 13.6832 13.7426 14.868 14.6511M15 8C15 10.7614 12.7614 13 10 13C7.23858 13 5 10.7614 5 8C5 5.23858 7.23858 3 10 3C12.7614 3 15 5.23858 15 8Z",
+  ],
+  // Not in the supplied set. Placeholders until the treasury section is built.
+  cake: [
+    "M12 5V3m0 2a2 2 0 0 0-2 2v1h4V7a2 2 0 0 0-2-2ZM5 12h14v7H5v-7Zm0 0a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2",
+  ],
+  contributions: ["M12 3v18M8 7h6a3 3 0 0 1 0 6H8m0 0h7a3 3 0 0 1 0 6H8"],
+  treasury: ["M4 9h16v10H4V9Zm2-4h12l2 4H4l2-4Zm6 7v4"],
+  settings: [
     "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.4-3a7.4 7.4 0 0 0-.1-1.1l2-1.5-2-3.4-2.3.9a7.5 7.5 0 0 0-1.9-1.1L14.7 3H9.3l-.4 2.4a7.5 7.5 0 0 0-1.9 1.1l-2.3-.9-2 3.4 2 1.5a7.4 7.4 0 0 0 0 2.2l-2 1.5 2 3.4 2.3-.9a7.5 7.5 0 0 0 1.9 1.1l.4 2.4h5.4l.4-2.4a7.5 7.5 0 0 0 1.9-1.1l2.3.9 2-3.4-2-1.5c.06-.36.1-.73.1-1.1Z",
+  ],
 };
+
+/** The hamburger, from the same set. Uneven lines, as drawn. */
+export const NAV_TOGGLE_PATH = "M21 5H3M21 12H9M21 19H7";
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {
   return (
@@ -24,13 +53,16 @@ export function Icon({ name, className }: { name: IconName; className?: string }
       aria-hidden="true"
       className={cn("size-[18px] shrink-0", className)}
     >
-      <path
-        d={PATHS[name]}
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {PATHS[name].map((d) => (
+        <path
+          key={d}
+          d={d}
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ))}
     </svg>
   );
 }

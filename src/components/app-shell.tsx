@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { Wordmark } from "@/components/brand";
 import { RoleBadge } from "@/components/role-badge";
-import { Icon } from "@/components/ui/icon";
+import { Icon, NAV_TOGGLE_PATH } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { signOutAction } from "@/lib/auth/actions";
 import type { AppRole } from "@/lib/database.types";
@@ -35,7 +35,16 @@ export function AppShell({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [clicked, setClicked] = useState<string | null>(null);
   const pathname = usePathname();
+
+  /*
+    Every section fetches on the server, so a tap sits there doing nothing visible
+    for a moment and people tap again. The spinner is derived rather than cleared by
+    an effect: it shows while the clicked href is not yet the current path, and stops
+    on its own the moment the new page lands.
+  */
+  const isNavigatingTo = (href: string) => clicked === href && pathname !== href;
 
   const nav = (
     <nav className="space-y-px">
@@ -46,9 +55,13 @@ export function AppShell({
           <Link
             key={item.href}
             href={item.href}
-            // A tap through the drawer leaves it closed behind you.
-            onClick={() => setMenuOpen(false)}
+            onClick={() => {
+              // A tap through the drawer leaves it closed behind you.
+              setMenuOpen(false);
+              setClicked(item.href);
+            }}
             aria-current={active ? "page" : undefined}
+            aria-busy={isNavigatingTo(item.href) || undefined}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-2.5 text-[13px]",
               "transition-colors duration-200 ease-out",
@@ -66,13 +79,18 @@ export function AppShell({
                 active ? "scale-y-100" : "scale-y-0 group-hover:scale-y-50",
               )}
             />
-            <Icon
-              name={item.icon}
-              className={cn(
-                "transition-colors duration-200",
-                active ? "text-accent-text" : "text-muted group-hover:text-ink-dim",
-              )}
-            />
+            {/* Swapped in place so the label does not shift while loading. */}
+            {isNavigatingTo(item.href) ? (
+              <Spinner className="size-[18px] text-accent-text" />
+            ) : (
+              <Icon
+                name={item.icon}
+                className={cn(
+                  "transition-colors duration-200",
+                  active ? "text-accent-text" : "text-muted group-hover:text-ink-dim",
+                )}
+              />
+            )}
             {item.label}
             {badge > 0 ? (
               <span
@@ -136,10 +154,11 @@ export function AppShell({
           <span className="sr-only">{menuOpen ? "Close menu" : "Open menu"}</span>
           <svg viewBox="0 0 24 24" fill="none" className="size-5" aria-hidden="true">
             <path
-              d={menuOpen ? "M6 6l12 12M18 6 6 18" : "M4 7h16M4 12h16M4 17h16"}
+              d={menuOpen ? "M6 6l12 12M18 6 6 18" : NAV_TOGGLE_PATH}
               stroke="currentColor"
-              strokeWidth="1.6"
+              strokeWidth="2"
               strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </button>
