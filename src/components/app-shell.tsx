@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Wordmark } from "@/components/brand";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { RoleBadge } from "@/components/role-badge";
 import { Icon, NAV_TOGGLE_PATH } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
@@ -40,11 +41,14 @@ export function AppShell({
 
   /*
     Every section fetches on the server, so a tap sits there doing nothing visible
-    for a moment and people tap again. The spinner is derived rather than cleared by
-    an effect: it shows while the clicked href is not yet the current path, and stops
-    on its own the moment the new page lands.
+    for a moment and people tap again. While that is happening the page is swapped
+    for a skeleton, which is the loading screen.
+
+    Derived rather than cleared by an effect: it is true while the clicked href is
+    not yet the current path, so it ends on its own the moment the new page lands and
+    there is no timer or cleanup to get wrong.
   */
-  const isNavigatingTo = (href: string) => clicked === href && pathname !== href;
+  const navigating = clicked !== null && pathname !== clicked;
 
   const nav = (
     <nav className="space-y-px">
@@ -61,7 +65,7 @@ export function AppShell({
               setClicked(item.href);
             }}
             aria-current={active ? "page" : undefined}
-            aria-busy={isNavigatingTo(item.href) || undefined}
+            aria-busy={(clicked === item.href && navigating) || undefined}
             className={cn(
               "group relative flex items-center gap-3 px-4 py-2.5 text-[13px]",
               "transition-colors duration-200 ease-out",
@@ -79,18 +83,13 @@ export function AppShell({
                 active ? "scale-y-100" : "scale-y-0 group-hover:scale-y-50",
               )}
             />
-            {/* Swapped in place so the label does not shift while loading. */}
-            {isNavigatingTo(item.href) ? (
-              <Spinner className="size-[18px] text-accent-text" />
-            ) : (
-              <Icon
-                name={item.icon}
-                className={cn(
-                  "transition-colors duration-200",
-                  active ? "text-accent-text" : "text-muted group-hover:text-ink-dim",
-                )}
-              />
-            )}
+            <Icon
+              name={item.icon}
+              className={cn(
+                "transition-colors duration-200",
+                active ? "text-accent-text" : "text-muted group-hover:text-ink-dim",
+              )}
+            />
             {item.label}
             {badge > 0 ? (
               <span
@@ -191,7 +190,7 @@ export function AppShell({
           key={pathname}
           className="anim-fade mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-10"
         >
-          {children}
+          {navigating ? <PageSkeleton /> : children}
         </div>
       </main>
     </div>
