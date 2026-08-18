@@ -249,6 +249,22 @@ keeps the record; deleting does not, and deleting is admin only.
 
 ## Training
 
+Assigning a material emails the people who were just added to it. Only the newly
+added: re-saving a list nobody changed sends nothing, and removing access sends
+nothing either.
+
+The email goes out **after** the grant is committed, and a delivery failure is
+reported rather than thrown. Access that has already been given must not be undone
+because a mail server had a bad minute. The admin sees the outcome on the same line
+as the save: `Eligibility saved. 2 added. 2 notified by email.`
+
+This is separate from Supabase's auth emails. Those use its own templates and SMTP
+settings; this one calls Resend directly from the server action, because Supabase
+never sees an email the app decides to send itself. Set `RESEND_API_KEY` to switch
+it on. Leave it unset and everything still works, the save just says nobody was
+notified.
+
+
 Eligibility is explicit and per person. There is no "visible to everyone" flag,
 because the brief is that members see only what they are eligible for. A material
 with nobody ticked is visible to the admin and the senior pastor only.

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireRole } from "@/lib/auth/session";
+import { sendEmail, summariseDelivery } from "@/lib/email/send";
+import { trainingAssignedEmail } from "@/lib/email/training-assigned";
 import { type FormState } from "@/lib/form-state";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -291,6 +293,43 @@ export async function deleteMaterialAction(formData: FormData) {
  * Replaces the whole eligibility set for one material in a single submit, rather
  * than firing a write per checkbox.
  */
+/**
+ * Emails each member who has just been given a material. Returns the one line the
+ * admin sees about delivery, or null when there was nobody to tell.
+ */
+async function notifyNewlyEligible(materialId: string, profileIds: string[]) {
+  if (profileIds.length === 0) return null;
+
+  const supabase = await createClient();
+  const [{ data: material }, { data: people }] = await Promise.all([
+    supabase
+      .from("training_materials")
+      .select("title, lesson_number, summary, expectations")
+      .eq("id", materialId)
+      .maybeSingle(),
+    supabase.from("profiles").select("first_name, email").in("id", profileIds),
+  ]);
+
+  if (!material || !people?.length) return null;
+
+  const results = await Promise.all(
+    people.map((person) => {
+      const { subject, html } = trainingAssignedEmail({
+        firstName: person.first_name || "there",
+        material: {
+          title: material.title,
+          lessonNumber: material.lesson_number,
+          summary: material.summary,
+          expectations: material.expectations,
+        },
+      });
+      return sendEmail({ to: person.email, subject, html });
+    }),
+  );
+
+  return summariseDelivery(results);
+}
+
 export async function setEligibilityAction(
   _prev: FormState,
   formData: FormData,
@@ -338,6 +377,11 @@ export async function setEligibilityAction(
     if (error) return { ok: false, message: error.message };
   }
 
+  // Notify only the people just added, and only after the grant is committed. A
+  // failed email must not undo access that has already been given, so delivery is
+  // reported separately rather than treated as an error.
+  const delivery = await notifyNewlyEligible(materialId, toAdd);
+
   revalidatePath("/training");
   revalidatePath(`/training/manage/${materialId}`);
 
@@ -350,5 +394,8 @@ export async function setEligibilityAction(
     removed ? `${removed} removed` : null,
   ].filter(Boolean);
 
-  return { ok: true, message: `Eligibility saved. ${parts.join(", ")}.` };
+  return {
+    ok: true,
+    message: [`Eligibility saved. ${parts.join(", ")}.`, delivery].filter(Boolean).join(" "),
+  };
 }
