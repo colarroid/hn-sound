@@ -94,6 +94,14 @@ In the Supabase dashboard:
   for local work, and add both `http://localhost:3100/**` and the production
   subdomain to the redirect allow list.
 
+  The `/**` is not decoration. Emailed links carry a path and a query, as in
+  `/auth/confirm?type=recovery&next=/reset-password`, and a bare origin on the
+  allow list will not match one. **A redirect that fails to match is discarded
+  silently:** Supabase substitutes the Site URL and still reports the send as
+  successful, so the symptom is a reset email that arrives perfectly and lands
+  on the wrong host. If a link opens somewhere unexpected, suspect this before
+  suspecting the app.
+
 ### 4. Send email through Resend
 
 Supabase's built in email service is capped at a handful of messages an hour and
