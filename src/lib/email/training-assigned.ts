@@ -1,15 +1,6 @@
 import { CHURCH_NAME } from "@/lib/brand";
+import { escapeHtml } from "@/lib/email/html";
 import { siteUrl } from "@/lib/site";
-
-/** Guards against a title or note breaking the markup, or worse. */
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
 
 export type AssignedMaterial = {
   title: string;

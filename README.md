@@ -255,6 +255,36 @@ member. An item's own details are for an admin, or for whoever added it, so one
 member cannot quietly rewrite another's entry. Retiring is admin only. Retiring
 keeps the record; deleting does not, and deleting is admin only.
 
+### The twice weekly reminder
+
+Every **Monday and Friday at 09:00 Lagos** the admins get an email listing
+everything still flagged faulty, oldest first, with the fault note, who reported
+it, and how long it has been waiting. Scheduled in `vercel.json` as `0 8 * * 1,5`,
+which is 08:00 UTC, because Vercel runs cron in UTC and Lagos sits an hour ahead
+all year with no daylight saving to chase.
+
+**Nothing faulty means no email.** A reminder that regularly arrives empty teaches
+people to skip it, and then the one that matters gets skipped too.
+
+The endpoint is `/api/cron/faulty-items` and it **fails closed**. Vercel attaches
+`Authorization: Bearer $CRON_SECRET` to its scheduled request when that variable
+is set, and the route refuses every request without it. With `CRON_SECRET` unset
+the route returns 503 and sends nothing, so a missing variable cannot leave an
+open mailer on a public URL. `RESEND_API_KEY` must also be set, the same key the
+training emails use.
+
+Add `?test=<address>` to send a single copy to that address instead of to the
+admins. A test sends even when nothing is faulty, so the layout can be checked
+without waiting for a Monday or breaking a microphone to have something to list:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" "https://sound.thehopenation.net/api/cron/faulty-items?test=you@example.com"
+```
+
+It reads through the service role client, because a cron request carries no
+session for row level security to evaluate. It writes nothing, and the only thing
+that leaves is an email to the admins it selected itself.
+
 ## Training
 
 Assigning a material emails the people who were just added to it. Only the newly
