@@ -234,6 +234,27 @@ Two details in `src/lib/birthdays.ts` worth keeping: "today" is resolved in
 either side of midnight, and a 29 February birthday is marked on the 28th in
 common years rather than rolling silently into March.
 
+### The birthday morning email
+
+Admins get an email at **07:00 Lagos on the morning of a birthday**, naming who
+is celebrating and their department position. Scheduled as `0 6 * * *`, which is
+06:00 UTC, because Vercel runs cron in UTC and West Africa Time holds UTC+1 all
+year with no daylight saving to chase.
+
+**The job checks daily. The email is not daily.** A birthday can fall on any day,
+so something has to look every morning, but on a day when nobody is celebrating
+the route sends nothing and reports `skipped: "nobody today"`. A member with a
+Thursday birthday produces exactly one email, on the Thursday.
+
+Whose day it is comes from `upcomingBirthdays` filtered to `daysAway === 0`, the
+same function behind `/birthdays`, rather than a second date calculation. That is
+deliberate: the Lagos timezone handling and the 29 February rule are easy to get
+subtly wrong twice, and an email that disagrees with the page it links to would
+be worse than no email.
+
+Endpoint, schedule and `?test=` behaviour match the faulty-items reminder below,
+including the shared `CRON_SECRET` gate in `src/lib/cron/authorize.ts`.
+
 ## Inventory
 
 Items group into categories that an admin maintains. A member is never blocked by

@@ -1,50 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { authorizeCron, readTestAddress } from "@/lib/cron/authorize";
 import { faultyItemsReminderEmail } from "@/lib/email/faulty-items-reminder";
-import { emailConfigured, sendEmail } from "@/lib/email/send";
+import { sendEmail } from "@/lib/email/send";
 import { loadFaultyDigest } from "@/lib/inventory/faulty-digest";
 
 /**
  * The Monday and Friday reminder about kit that is still flagged faulty.
  *
- * Scheduled in `vercel.json`. Vercel attaches `Authorization: Bearer
- * $CRON_SECRET` to its own requests when that variable is set, which is the only
- * thing separating this route from anyone who guesses the path. With no secret
- * configured it refuses to run at all rather than falling open, because the
- * failure mode of falling open is a stranger being able to mail the department.
+ * Scheduled in `vercel.json`. The secret check lives in `authorizeCron`, shared
+ * with the other scheduled routes so there is one place to get it right.
  *
  * `?test=<address>` sends one copy to that address instead of to the admins, and
  * sends even when nothing is faulty, so the layout can be checked on demand
  * without waiting for a Monday or breaking something to have data.
  */
 export async function GET(request: NextRequest) {
-  const secret = process.env.CRON_SECRET;
+  const denied = authorizeCron(request);
+  if (denied) return denied;
 
-  if (!secret) {
-    return NextResponse.json(
-      { ok: false, error: "CRON_SECRET is not set, so this route is disabled." },
-      { status: 503 },
-    );
-  }
-
-  if (request.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ ok: false, error: "Unauthorized." }, { status: 401 });
-  }
-
-  if (!emailConfigured()) {
-    return NextResponse.json(
-      { ok: false, error: "RESEND_API_KEY is not set, so no email can be sent." },
-      { status: 503 },
-    );
-  }
-
-  const testAddress = request.nextUrl.searchParams.get("test")?.trim() || null;
-  if (testAddress && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testAddress)) {
-    return NextResponse.json(
-      { ok: false, error: "The test address is not a valid email address." },
-      { status: 400 },
-    );
-  }
+  const test = readTestAddress(request);
+  if (test instanceof NextResponse) return test;
+  const testAddress = test.address;
 
   let digest;
   try {

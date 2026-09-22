@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/faulty-items",
       "schedule": "0 8 * * 1,5"
+    },
+    {
+      "path": "/api/cron/birthdays",
+      "schedule": "0 6 * * *"
     }
   ]
 }
